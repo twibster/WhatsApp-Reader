@@ -8,6 +8,11 @@ def save_file(form_file):
         file_text, file_ext = os.path.splitext(form_file.filename) # extract the name and extension of the original file
         file_filename = file_text[:5]+random_hex + file_ext # create the random name for the file
         file_path = os.path.join(app.root_path,'chats',form_file.filename) # create the path to save the file
+        try:
+            os.makedirs(os.path.join(app.root_path,'chats'))
+        except FileExistsError:
+            pass
+
         form_file.save(file_path) #save the file to the created path
         id = parse(file_path,form_file.filename) #read and process the saved file
         return id
