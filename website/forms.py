@@ -4,4 +4,4 @@ from wtforms import SubmitField
 
 class TxtFileForm(FlaskForm):
 	txt_file = FileField('Change Profile Photo',validators = [FileAllowed(['txt'])])
-	submit = SubmitField('Submit')
+	submit = SubmitField('SUBMIT')

@@ -1,19 +1,36 @@
 {% extends 'layout.html' %}
 {% block content %}
-	<form method="POST" action="" enctype='multipart/form-data' onsubmit="return validate_form()">
-		{{ form.hidden_tag() }}
-		<div class='outer-home'>
-			<div class='file-prompt'>
-				<div class='file-button'>
-					{{form.txt_file(id='txt-file',style='display:none;',accept='.txt',
-									onchange='get_filename(this)')}}
-					<label for='txt-file' class='txt-label' id='file-label'>Upload your conversation</label>
-					<script type="text/javascript" src="static/scripts/uploadValidator.js"></script>
-				</div>
-				<div>
-					{{form.submit(id='submit-btn',class='submit')}}
-				</div>
+	<div class='outer-home'>
+		<div class='up-row'>
+			<div class='logo-container'>
+				<img src='static/images/whatsapp.png' class='logo-img'>
+				<p class='logo-txt'>WHATSAPP READER</p>
 			</div>
 		</div>
-	</form>
+		<div class='down-row' id='down'>
+			<form method="POST" action="" enctype='multipart/form-data' onsubmit="return validate_form()">
+				{{ form.hidden_tag() }}
+				<div class='info-file-container'>
+					<div class='info'>
+						<p class='info-title'>To display your exported conversations:</p><br>
+						<p class='info-text'>1. Open WhatsApp on your phone.</p><br>
+						<p class='info-text'>2. Head to your desired conversation.</p><br>
+						<p class='info-text'>3. Tap <b>Menu </b><svg class='menu-img' viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"></path></svg>
+						and select <b>More</b> then <b>Export Chat.</b></p><br>
+						<p class='info-text'>4. Upload your conversation here and DO NOT MODIFY THE FILE.</p><br>
+					</div>
+				</div>
+				<div class='file'>
+					<span id='chosen-file' class='choosen'></span>
+					{{form.txt_file(id='txt-file',accept='.txt',onchange='get_filename(this)')}}
+					<label for='txt-file' class='txt-label' id='file-label'>CHOOSE YOUR CONVERSATION</label>
+					<script type="text/javascript" src="static/scripts/Validator.js"></script>
+				</div>
+				<div class='file-submit'>
+					{{form.submit(id='submit-btn',class='submit')}}
+				</div>
+			</form>
+		</div>
+		<script type="text/javascript" src="static/scripts/homeMobile.js"></script>
+	</div>
 {% endblock%}
