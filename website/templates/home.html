@@ -1,0 +1,19 @@
+{% extends 'layout.html' %}
+{% block content %}
+	<form method="POST" action="" enctype='multipart/form-data' onsubmit="return validate_form()">
+		{{ form.hidden_tag() }}
+		<div class='outer-home'>
+			<div class='file-prompt'>
+				<div class='file-button'>
+					{{form.txt_file(id='txt-file',style='display:none;',accept='.txt',
+									onchange='get_filename(this)')}}
+					<label for='txt-file' class='txt-label' id='file-label'>Upload your conversation</label>
+					<script type="text/javascript" src="static/scripts/uploadValidator.js"></script>
+				</div>
+				<div>
+					{{form.submit(id='submit-btn',class='submit')}}
+				</div>
+			</div>
+		</div>
+	</form>
+{% endblock%}
