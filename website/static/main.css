@@ -92,7 +92,6 @@ body{
   color: #dedee0;
   min-width:50px;
   max-width:70%;
-  text-align:right;
 }
 .reciever{
   margin-left:7px;
@@ -104,10 +103,13 @@ body{
   color:#dedee0;
   min-width:50px;
   max-width:70%;
-  text-align:right;
 }
 .msg{
   display: block;
+  
+}
+.right-align{
+  text-align:right;
   direction: rtl;
 }
 .msg-sender{
@@ -120,6 +122,7 @@ body{
   font-size:11;
   display:block;
   margin-top:5px;
+  text-align:right;
 }
 .header{
   background-color: #323739;
@@ -183,7 +186,6 @@ body{
 .dropdown-content button{
   background-color: transparent;
   color:#dedee0;
-  border: none;
   height:50px;
   width:100%;
   font-size:14px;
@@ -474,4 +476,13 @@ a:hover{
 }
 .menu-img{
   margin-bottom:-6px;
+}
+.align-btn{
+   border-top: 0.01em solid #80808061;
+   border-left:none;
+   border-right:none;
+   border-bottom:none;
+}
+.no-border{
+  border:none
 }
