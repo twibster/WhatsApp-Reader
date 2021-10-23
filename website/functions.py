@@ -102,7 +102,7 @@ def parse(location,file):
                 msg = Message(date=date,sender=sender,msg=text,conversation=convo,show_time=show_time,break_space=break_space)
                 db.session.add(msg)
 
-    except UnboundLocalError:
+    except:
         os.remove(location)
         return abort(422)
         
