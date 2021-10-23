@@ -465,3 +465,13 @@ a:hover{
   margin:auto;
   margin-top:10px;
 }
+.file-error{
+  color: #D8000C;
+  background-color: #FFD2D2;
+  padding:1px;
+  border-radius:4px;
+  transition:0.4s;
+}
+.menu-img{
+  margin-bottom:-6px;
+}

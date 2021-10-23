@@ -1,6 +1,7 @@
 import os,secrets,re,random,datetime
 from website.models import Conversation,Message,Chatters
 from website import app,db
+from flask import abort
 
 def save_file(form_file):
     if form_file:
@@ -60,45 +61,49 @@ def add_chatter(chatters,convo,title):
 
 def parse(location,file):
     chat_title= extract_chat_title(file)
-    with open(location, encoding='utf-8') as chat: 
-        chat=chat.readlines()
-        break_space,show_time,chatters=None,None,[]
-        for message in chat:
-            first =chat.index(message)== 0
-            line="([0-9]+/[0-9]+/[0-9]+), ([0-9]+:[0-9]+) - (.*): (.*)"
-            extracted = re.search(line, message)
+    try:
+        with open(location, encoding='utf-8') as chat: 
+            chat=chat.readlines()
+            break_space,show_time,chatters=None,None,[]
+            for message in chat:
+                first =chat.index(message)== 0
+                line="([0-9]+/[0-9]+/[0-9]+), ([0-9]+:[0-9]+) - (.*?): (.*)"
+                extracted = re.search(line, message)
 
-            if extracted:
-                date=datetime.datetime.strptime(extracted.group(1)+' '+extracted.group(2),'%m/%d/%y %H:%M')
-                sender= extracted.group(3)
-                text= extract(extracted.group(4))
-            else:
-                date="([0-9]+/[0-9]+/[0-9]+), ([0-9]+:[0-9]+) -"
-                date=re.search(date, message)
-                if date:
-                    text='- (.*)'
-                    date=datetime.datetime.strptime(date.group(1)+' '+date.group(2),'%m/%d/%y %H:%M')
-                    text=extract(re.search(text,message).group(1))
-                    sender=None
+                if extracted:
+                    date=datetime.datetime.strptime(extracted.group(1)+' '+extracted.group(2),'%m/%d/%y %H:%M')
+                    sender= extracted.group(3)
+                    text= extract(extracted.group(4))
                 else:
-                    msg.msg += '<br>' +extract(message)
-                    continue
+                    date="([0-9]+/[0-9]+/[0-9]+), ([0-9]+:[0-9]+) -"
+                    date=re.search(date, message)
+                    if date:
+                        text='- (.*)'
+                        date=datetime.datetime.strptime(date.group(1)+' '+date.group(2),'%m/%d/%y %H:%M')
+                        text=extract(re.search(text,message).group(1))
+                        sender=None
+                    else:
+                        msg.msg += '<br>' +extract(message)
+                        continue
 
-            chatters.append(sender) if (sender) and (sender not in chatters) else None
+                chatters.append(sender) if (sender) and (sender not in chatters) else None
 
-            if not first:
-                show_time=True if date.day != msg.date.day else None
-                break_space=True if sender != msg.sender else None
-            else:
-                show_time=True
-                '''initialize the conversation in the database'''
-                convo=Conversation()
-                db.session.add(convo)
+                if not first:
+                    show_time=True if date.day != msg.date.day else None
+                    break_space=True if sender != msg.sender else None
+                else:
+                    show_time=True
+                    '''initialize the conversation in the database'''
+                    convo=Conversation()
+                    db.session.add(convo)
 
-                
-            msg = Message(date=date,sender=sender,msg=text,conversation=convo,show_time=show_time,break_space=break_space)
-            db.session.add(msg)
+                    
+                msg = Message(date=date,sender=sender,msg=text,conversation=convo,show_time=show_time,break_space=break_space)
+                db.session.add(msg)
 
+    except UnboundLocalError:
+        return abort(422)
+        
     add_chatter(chatters,convo,chat_title)
     db.session.commit()
     return msg.convo

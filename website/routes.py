@@ -5,15 +5,20 @@ from website.forms import TxtFileForm
 from website.models import Conversation,Message,Chatters
 from website.functions import save_file,extract
 
+@app.errorhandler(422)
+def invalid_file(_):
+    return redirect(url_for('home',error='Invalid WhatsApp chat file'))
+    
 @app.route("/",methods =['GET','POST'])
 def home():
+    error=request.args.get('error')
     form= TxtFileForm()
     if form.validate_on_submit():
         start=time.time()
         id = save_file(form.txt_file.data)
         end=time.time()
         return redirect(url_for('chats',id=id,time=end-start))
-    return render_template('home.html',form=form)
+    return render_template('home.html',form=form,error=error)
 
 @app.route('/chats',methods=['GET','POST'])
 def chats():

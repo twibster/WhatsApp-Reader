@@ -10,14 +10,21 @@
 		<div class='down-row' id='down'>
 			<form method="POST" action="" enctype='multipart/form-data' onsubmit="return validate_form()">
 				{{ form.hidden_tag() }}
+			{% if error %}
+				<div class='file-error'>
+					<p>{{error}}</p>
+				</div>
+			{% endif %}
 				<div class='info-file-container'>
 					<div class='info'>
 						<p class='info-title'>To display your exported conversations:</p><br>
 						<p class='info-text'>1. Open WhatsApp on your phone.</p><br>
 						<p class='info-text'>2. Head to your desired conversation.</p><br>
 						<p class='info-text'>3. Tap <b>Menu </b><svg class='menu-img' viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"></path></svg>
-						and select <b>More</b> then <b>Export Chat.</b></p><br>
-						<p class='info-text'>4. Upload your conversation here and DO NOT MODIFY THE FILE.</p><br>
+						and select <b>More</b>.</p><br>
+						<p class='info-text'>4. Select <b>Export Chat</b>.</p><br>
+						<p class='info-text'>5. DO NOT <b>MODIFY</b> THE FILE.</p><br>
+						<p class='info-text'>6. Upload your conversation here.</p><br>
 					</div>
 				</div>
 				<div class='file'>
