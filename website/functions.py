@@ -16,6 +16,7 @@ def save_file(form_file):
 
         form_file.save(file_path) #save the file to the created path
         id = parse(file_path,form_file.filename) #read and process the saved file
+        os.remove(file_path)
         return id
     else:
         return None
@@ -102,6 +103,7 @@ def parse(location,file):
                 db.session.add(msg)
 
     except UnboundLocalError:
+        os.remove(location)
         return abort(422)
         
     add_chatter(chatters,convo,chat_title)
