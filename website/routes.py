@@ -1,7 +1,6 @@
 import datetime,time
-from flask import render_template,redirect,url_for,request
+from flask import render_template,redirect,url_for,request,abort
 from website import app,db
-from website.forms import TxtFileForm
 from website.models import Conversation,Message,Chatters
 from website.functions import save_file,extract
 
@@ -12,13 +11,12 @@ def invalid_file(_):
 @app.route("/",methods =['GET','POST'])
 def home():
     error=request.args.get('error')
-    form= TxtFileForm()
-    if form.validate_on_submit():
+    if request.method=='POST':
         start=time.time()
-        id = save_file(form.txt_file.data)
+        id = save_file(request.files['txt_file'])
         end=time.time()
         return redirect(url_for('chats',id=id,time=end-start))
-    return render_template('home.html',form=form,error=error)
+    return render_template('home.html',error=error)
 
 @app.route('/chats',methods=['GET','POST'])
 def chats():
@@ -49,8 +47,8 @@ def chats():
     else:
         type='group'
         reciever=pov.conversation.title
+    
     fetch_time=time.time()-start
-
     return render_template('conversation.html',msgs=msgs,pov=pov,reciever=reciever,type=type,convos=convos,
                             chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,
                             extract=extract,time=time,fetch_time=fetch_time,parse_time=parse_time)

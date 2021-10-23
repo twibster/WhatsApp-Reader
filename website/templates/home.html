@@ -8,8 +8,7 @@
 			</div>
 		</div>
 		<div class='down-row' id='down'>
-			<form method="POST" action="" enctype='multipart/form-data' onsubmit="return validate_form()">
-				{{ form.hidden_tag() }}
+			<form  method='POST' action="" enctype='multipart/form-data' onsubmit="return validate_form()">
 			{% if error %}
 				<div class='file-error'>
 					<p>{{error}}</p>
@@ -28,16 +27,15 @@
 					</div>
 				</div>
 				<div class='file'>
-					<span id='chosen-file' class='choosen'></span>
-					{{form.txt_file(id='txt-file',accept='.txt',onchange='get_filename(this)')}}
+					<input accept=".txt" id="txt-file" name="txt_file" onchange="get_filename(this)" type="file">
 					<label for='txt-file' class='txt-label' id='file-label'>CHOOSE YOUR CONVERSATION</label>
-					<script type="text/javascript" src="static/scripts/Validator.js"></script>
 				</div>
 				<div class='file-submit'>
-					{{form.submit(id='submit-btn',class='submit')}}
+					<input type="submit" name="Submit" class='submit' id='submit-btn'>
 				</div>
 			</form>
 		</div>
 		<script type="text/javascript" src="static/scripts/homeMobile.js"></script>
 	</div>
+	<script type="text/javascript" src="static/scripts/Validator.js"></script>
 {% endblock%}
