@@ -36,7 +36,7 @@ def chats():
     id=request.args.get('id')
     pov=request.args.get('pov')
 
-    msgs =Message.query.filter_by(convo=id).order_by(Message.date)
+    msgs =Message.query.filter_by(convo=id).order_by(Message.id)
     convos=Conversation.query.filter_by(id=id)
     chatters=Chatters.query.filter_by(convo=id)
 
