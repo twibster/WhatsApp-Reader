@@ -37,9 +37,14 @@ def chats():
         if pov:
             pov=chatters.filter_by(name=pov).first()
             pov.pov=True
-            for chatter in chatters.filter(Chatters.id != pov.id):
-                if chatter.pov ==True:
-                    chatter.pov =False
+            if pov.conversation.type=='private':
+                other = chatters.filter(Chatters.id != pov.id).first()
+                other.pov=False
+                other.conversation.title=other.name
+            else:
+                for chatter in chatters.filter(Chatters.id != pov.id):
+                    if chatter.pov ==True:
+                        chatter.pov =False
             db.session.commit()
             chatters=Chatters.query.filter_by(convo=id)
         else:

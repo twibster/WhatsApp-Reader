@@ -13,9 +13,8 @@ def save_file(form_file):
             os.makedirs(os.path.join(app.root_path,'chats'))
         except FileExistsError:
             pass
-
         form_file.save(file_path) #save the file to the created path
-        id = parse(file_path,file_text) #read and process the saved file
+        id = parse(file_path,form_file.filename) #read and process the saved file
         os.remove(file_path)
         return id
     else:
