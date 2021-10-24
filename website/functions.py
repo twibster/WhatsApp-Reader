@@ -1,21 +1,21 @@
 import os,secrets,re,random,datetime
 from website.models import Conversation,Message,Chatters
 from website import app,db
-from flask import abort
+from flask import abort,redirect,url_for
 
 def save_file(form_file):
     if form_file:
         random_hex = secrets.token_hex(8) # generate random name for the file
         file_text, file_ext = os.path.splitext(form_file.filename) # extract the name and extension of the original file
-        file_filename = file_text[:5]+random_hex + file_ext # create the random name for the file
-        file_path = os.path.join(app.root_path,'chats',form_file.filename) # create the path to save the file
+        file_filename = random_hex + file_ext # create the random name for the file
+        file_path = os.path.join(app.root_path,'chats',file_filename) # create the path to save the file
         try:
             os.makedirs(os.path.join(app.root_path,'chats'))
         except FileExistsError:
             pass
 
         form_file.save(file_path) #save the file to the created path
-        id = parse(file_path,form_file.filename) #read and process the saved file
+        id = parse(file_path,file_text) #read and process the saved file
         os.remove(file_path)
         return id
     else:
