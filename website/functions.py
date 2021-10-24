@@ -74,6 +74,10 @@ def parse(location,file,username):
                     date=datetime.datetime.strptime(extracted.group(1)+' '+extracted.group(2),'%m/%d/%y %H:%M')
                     sender= extracted.group(3)
                     text= extract(extracted.group(4))
+                    if text =='Missed voice call':
+                        time_24=datetime.datetime.strptime(extracted.group(2), "%H:%M")
+                        text=text+' at '+time_24.strftime("%I:%M %p")
+                        sender=None
                 else:
                     date="([0-9]+/[0-9]+/[0-9]+), ([0-9]+:[0-9]+) -"
                     date=re.search(date, message)
