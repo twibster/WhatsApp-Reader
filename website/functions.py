@@ -3,7 +3,7 @@ from website.models import Conversation,Message,Chatters
 from website import app,db
 from flask import abort,redirect,url_for
 
-def save_file(form_file):
+def save_file(form_file,username):
     if form_file:
         random_hex = secrets.token_hex(8) # generate random name for the file
         file_text, file_ext = os.path.splitext(form_file.filename) # extract the name and extension of the original file
@@ -14,7 +14,7 @@ def save_file(form_file):
         except FileExistsError:
             pass
         form_file.save(file_path) #save the file to the created path
-        id = parse(file_path,form_file.filename) #read and process the saved file
+        id = parse(file_path,form_file.filename,username) #read and process the saved file
         os.remove(file_path)
         return id
     else:
@@ -59,7 +59,7 @@ def add_chatter(chatters,convo,title):
             else:
                 member=Chatters(name=chatter,conversation=convo,color=color_generator())
 
-def parse(location,file):
+def parse(location,file,username):
     chat_title= extract_chat_title(file)
     try:
         with open(location, encoding='utf-8') as chat: 
@@ -94,7 +94,7 @@ def parse(location,file):
                 else:
                     show_time=True
                     '''initialize the conversation in the database'''
-                    convo=Conversation()
+                    convo=Conversation(session=username)
                     db.session.add(convo)
 
                     

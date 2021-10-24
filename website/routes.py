@@ -1,5 +1,5 @@
-import datetime,time
-from flask import render_template,redirect,url_for,request,abort
+import datetime,time,random,os
+from flask import render_template,redirect,url_for,request,abort,session
 from website import app,db
 from website.models import Conversation,Message,Chatters
 from website.functions import save_file,extract
@@ -11,21 +11,27 @@ def not_found(_):
 @app.errorhandler(422)
 def invalid_file(_):
     return redirect(url_for('home',error='Invalid WhatsApp chat file'))
+
+@app.errorhandler(401)
+def unautherized(_):
+    return redirect(url_for('home',error="You are not the owner of this conversation"))
     
 @app.route("/",methods =['GET','POST'])
 def home():
     error=request.args.get('error')
     if request.method=='POST':
+        unique_id=os.urandom(8).hex()
         start=time.time()
-        id = save_file(request.files['txt_file'])
+        id = save_file(request.files['txt_file'],unique_id)
         end=time.time()
-        return redirect(url_for('chats',id=id,time=end-start))
+        return redirect(url_for('chats',id=id,time=end-start,u=unique_id))
     return render_template('home.html',error=error)
 
 @app.route('/chats',methods=['GET','POST'])
 def chats():
     start=time.time()
     parse_time=request.args.get('time')
+    unique_id=request.args.get('u')
 
     id=request.args.get('id')
     pov=request.args.get('pov')
@@ -33,7 +39,14 @@ def chats():
     msgs =Message.query.filter_by(convo=id).order_by(Message.date)
     convos=Conversation.query.filter_by(id=id)
     chatters=Chatters.query.filter_by(convo=id)
+
     try:
+        if unique_id:
+            if convos.first().session != unique_id:
+                abort(401)
+        else:
+            return redirect(url_for('home',error='Your session has expired'))
+
         if pov:
             pov=chatters.filter_by(name=pov).first()
             pov.pov=True
@@ -61,5 +74,5 @@ def chats():
     
     fetch_time=time.time()-start
     return render_template('conversation.html',msgs=msgs,pov=pov,reciever=reciever,type=type,convos=convos,
-                            chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,
+                            chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,unique_id=unique_id,
                             extract=extract,time=time,fetch_time=fetch_time,parse_time=parse_time)

@@ -5,6 +5,7 @@ class Conversation(db.Model):
 	type=db.Column(db.String,default='private')
 	title=db.Column(db.String)
 	msgs=db.relationship('Message',backref = "conversation", cascade="all, delete")
+	session=db.Column(db.String)
 	chatters=db.relationship('Chatters',backref = "conversation", cascade="all, delete")
 	
 class Message(db.Model):
