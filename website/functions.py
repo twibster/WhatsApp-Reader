@@ -59,31 +59,40 @@ def add_chatter(chatters,convo,title):
             else:
                 member=Chatters(name=chatter,conversation=convo,color=color_generator())
 
+def handle_time(time):
+    if 'PM' in time or 'AM' in time:
+        converter = '%m/%d/%y %I:%M %p'
+    else:
+        converter = '%m/%d/%y %H:%M'
+    return converter
+
 def parse(location,file,username):
     chat_title= extract_chat_title(file)
     try:
-        with open(location, encoding='utf-8') as chat: 
+        with open(location, encoding='utf-8-sig') as chat: 
             chat=chat.readlines()
             break_space,show_time,chatters=None,None,[]
             for message in chat:
                 first =chat.index(message)== 0
-                line="([0-9]+/[0-9]+/[0-9]+), ([0-9]+:[0-9]+) - (.*?): (.*)"
+                line="(.*?), (.*?) - (.*?): (.*)"
                 extracted = re.search(line, message)
 
                 if extracted:
-                    date=datetime.datetime.strptime(extracted.group(1)+' '+extracted.group(2),'%m/%d/%y %H:%M')
+                    time=extracted.group(2)
+                    date=datetime.datetime.strptime(extracted.group(1)+' '+time,handle_time(time))
                     sender= extracted.group(3)
                     text= extract(extracted.group(4))
                     if text =='Missed voice call':
-                        time_24=datetime.datetime.strptime(extracted.group(2), "%H:%M")
+                        time_24=datetime.datetime.strptime(extracted.group(1)+' '+time,handle_time(time))
                         text=text+' at '+time_24.strftime("%I:%M %p")
                         sender=None
                 else:
-                    date="([0-9]+/[0-9]+/[0-9]+), ([0-9]+:[0-9]+) -"
+                    date="(.*?), (.*?) -"
                     date=re.search(date, message)
                     if date:
                         text='- (.*)'
-                        date=datetime.datetime.strptime(date.group(1)+' '+date.group(2),'%m/%d/%y %H:%M')
+                        time= date.group(2)
+                        date=datetime.datetime.strptime(date.group(1)+' '+time,handle_time(time))
                         text=extract(re.search(text,message).group(1))
                         sender=None
                     else:
@@ -105,9 +114,13 @@ def parse(location,file,username):
                 msg = Message(date=date,sender=sender,msg=text,conversation=convo,show_time=show_time,break_space=break_space)
                 db.session.add(msg)
 
-    except:
+    except UnboundLocalError:
         os.remove(location)
-        return abort(422)
+        abort(422)
+
+    except UnicodeDecodeError:
+        os.remove(location)
+        abort(406)
         
     add_chatter(chatters,convo,chat_title)
     db.session.commit()

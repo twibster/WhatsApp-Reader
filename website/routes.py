@@ -15,6 +15,10 @@ def invalid_file(_):
 @app.errorhandler(401)
 def unautherized(_):
     return redirect(url_for('home',error="You are not the owner of this conversation"))
+
+@app.errorhandler(406)
+def not_found(_):
+    return redirect(url_for('home',error="Your phone language must be English before exporting the conversation"))
     
 @app.route("/",methods =['GET','POST'])
 def home():
