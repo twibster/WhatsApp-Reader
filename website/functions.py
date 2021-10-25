@@ -79,50 +79,59 @@ def date_format(date):
 
 def parse(location,file,username):
     chat_title= extract_chat_title(file)
-    with open(location, encoding='utf-8-sig') as chat: 
-        chat=chat.readlines()
-        break_space,show_time,chatters=None,None,[]
-        for message in chat:
-            first =chat.index(message)== 0
-            line="(.*?), (.*?) - (.*?): (.*)"
-            extracted = re.search(line, message)
+    try:
+        with open(location, encoding='utf-8-sig') as chat: 
+            chat=chat.readlines()
+            break_space,show_time,chatters=None,None,[]
+            for message in chat:
+                first =chat.index(message)== 0
+                line="(.*?), (.*?) - (.*?): (.*)"
+                extracted = re.search(line, message)
 
-            if extracted:
-                date,time,sender,text=extracted.group(1),extracted.group(2),extracted.group(3),extracted.group(4)
-                if text =='Missed voice call':
-                    text=text+' at '+time
-                    sender=None
-            else:
-                date="(.*?), (.*?) -"
-                date=re.search(date, message)
-                if date:
-                    text='- (.*)'
-                    date,time= date.group(1),date.group(2)
-                    text=re.search(text,message).group(1)
-                    sender=None
+                if extracted:
+                    date,time,sender,text=extracted.group(1),extracted.group(2),extracted.group(3),extracted.group(4)
+                    if text =='Missed voice call':
+                        text=text+' at '+time
+                        sender=None
                 else:
-                    text,_=handle_msg(message)
-                    msg.msg += '<br>' + text
-                    continue
+                    date="(.*?), (.*?) -"
+                    date=re.search(date, message)
+                    if date:
+                        text='- (.*)'
+                        date,time= date.group(1),date.group(2)
+                        text=re.search(text,message).group(1)
+                        sender=None
+                    else:
+                        text,_=handle_msg(message)
+                        msg.msg += '<br>' + text
+                        continue
 
-            if first:
-                show_time=True
-                date_time_format =date_format(date)+' '+time_format(time)
-                '''initialize the conversation in the database'''
-                convo=Conversation(session=username)
-                db.session.add(convo)
+                if first:
+                    show_time=True
+                    date_time_format =date_format(date)+' '+time_format(time)
+                    '''initialize the conversation in the database'''
+                    convo=Conversation(session=username)
+                    db.session.add(convo)
 
-            date = datetime.datetime.strptime(date+' '+time, date_time_format)
-            text,msg_type = handle_msg(text)
-            chatters.append(sender) if (sender) and (sender not in chatters) else None
+                date = datetime.datetime.strptime(date+' '+time, date_time_format)
+                text,msg_type = handle_msg(text)
+                chatters.append(sender) if (sender) and (sender not in chatters) else None
 
-            if not first:
-                show_time=True if date.day != msg.date.day else None
-                break_space=True if sender != msg.sender else None
+                if not first:
+                    show_time=True if date.day != msg.date.day else None
+                    break_space=True if sender != msg.sender else None
+                    
+                msg = Message(date=date,sender=sender,msg=text,conversation=convo,
+                            show_time=show_time,break_space=break_space,type=msg_type)
+                db.session.add(msg)
                 
-            msg = Message(date=date,sender=sender,msg=text,conversation=convo,
-                        show_time=show_time,break_space=break_space,type=msg_type)
-            db.session.add(msg)
+    except UnboundLocalError:
+        os.remove(location)
+        abort(422)
+
+    except UnicodeDecodeError:
+        os.remove(location)
+        abort(406)
 
     add_chatter(chatters,convo,chat_title)
     db.session.commit()
