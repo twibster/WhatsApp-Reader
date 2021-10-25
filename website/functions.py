@@ -59,76 +59,76 @@ def add_chatter(chatters,convo,title):
             else:
                 member=Chatters(name=chatter,conversation=convo,color=color_generator())
 
-def handle_time(time):
-    if 'PM' in time or 'AM' in time:
-        converter = '%m/%d/%y %I:%M %p'
-    else:
-        converter = '%m/%d/%y %H:%M'
-    return converter
+def time_format(time):
+    time_patterns = ['%H:%M','%I:%M %p','%I:%M a.m.','%I:%M p.m.']
+    for pattern in time_patterns:
+        try:
+            datetime.datetime.strptime(time, pattern)
+        except ValueError:
+            continue
+        return pattern
+
+def date_format(date):
+    date_patterns = ["%d/%m/%Y","%m/%d/%Y","%m/%d/%y","%d/%m/%y"]
+    for pattern in date_patterns:
+        try:
+            datetime.datetime.strptime(date, pattern)
+        except ValueError:
+            continue
+        return pattern
 
 def parse(location,file,username):
     chat_title= extract_chat_title(file)
-    try:
-        with open(location, encoding='utf-8-sig') as chat: 
-            chat=chat.readlines()
-            break_space,show_time,chatters=None,None,[]
-            for message in chat:
-                first =chat.index(message)== 0
-                line="(.*?), (.*?) - (.*?): (.*)"
-                extracted = re.search(line, message)
+    with open(location, encoding='utf-8-sig') as chat: 
+        chat=chat.readlines()
+        break_space,show_time,chatters=None,None,[]
+        for message in chat:
+            first =chat.index(message)== 0
+            line="(.*?), (.*?) - (.*?): (.*)"
+            extracted = re.search(line, message)
 
-                if extracted:
-                    time=extracted.group(2)
-                    date=datetime.datetime.strptime(extracted.group(1)+' '+time,handle_time(time))
-                    sender= extracted.group(3)
-                    text= extracted.group(4)
-                    if text =='Missed voice call':
-                        time_24=datetime.datetime.strptime(extracted.group(1)+' '+time,handle_time(time))
-                        text=text+' at '+time_24.strftime("%I:%M %p")
-                        sender=None
+            if extracted:
+                date,time,sender,text=extracted.group(1),extracted.group(2),extracted.group(3),extracted.group(4)
+                if text =='Missed voice call':
+                    text=text+' at '+time
+                    sender=None
+            else:
+                date="(.*?), (.*?) -"
+                date=re.search(date, message)
+                if date:
+                    text='- (.*)'
+                    date,time= date.group(1),date.group(2)
+                    text=re.search(text,message).group(1)
+                    sender=None
                 else:
-                    date="(.*?), (.*?) -"
-                    date=re.search(date, message)
-                    if date:
-                        text='- (.*)'
-                        time= date.group(2)
-                        date=datetime.datetime.strptime(date.group(1)+' '+time,handle_time(time))
-                        text=re.search(text,message).group(1)
-                        sender=None
-                    else:
-                        text,_=extract(message)
-                        msg.msg += '<br>' + text
-                        continue
+                    text,_=handle_msg(message)
+                    msg.msg += '<br>' + text
+                    continue
 
-                text,msg_type = extract(text)
-                chatters.append(sender) if (sender) and (sender not in chatters) else None
+            if first:
+                show_time=True
+                date_time_format =date_format(date)+' '+time_format(time)
+                '''initialize the conversation in the database'''
+                convo=Conversation(session=username)
+                db.session.add(convo)
 
-                if not first:
-                    show_time=True if date.day != msg.date.day else None
-                    break_space=True if sender != msg.sender else None
-                else:
-                    show_time=True
-                    '''initialize the conversation in the database'''
-                    convo=Conversation(session=username)
-                    db.session.add(convo)
-                    
-                msg = Message(date=date,sender=sender,msg=text,conversation=convo,
-                            show_time=show_time,break_space=break_space,type=msg_type)
-                db.session.add(msg)
+            date = datetime.datetime.strptime(date+' '+time, date_time_format)
+            text,msg_type = handle_msg(text)
+            chatters.append(sender) if (sender) and (sender not in chatters) else None
 
-    except UnboundLocalError:
-        os.remove(location)
-        abort(422)
+            if not first:
+                show_time=True if date.day != msg.date.day else None
+                break_space=True if sender != msg.sender else None
+                
+            msg = Message(date=date,sender=sender,msg=text,conversation=convo,
+                        show_time=show_time,break_space=break_space,type=msg_type)
+            db.session.add(msg)
 
-    except UnicodeDecodeError:
-        os.remove(location)
-        abort(406)
-        
     add_chatter(chatters,convo,chat_title)
     db.session.commit()
     return msg.convo
 
-def extract(msg):
+def handle_msg(msg):
     url_regx=r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))"""
     msg= re.sub(url_regx,r"<a href=\1 target='_blank' rel='noopener noreferrer'>\1</a>",msg)
     italics= ['You deleted this message','This message was deleted','<Media omitted>']

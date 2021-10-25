@@ -2,7 +2,7 @@ import datetime,time,random,os
 from flask import render_template,redirect,url_for,request,abort,session
 from website import app,db
 from website.models import Conversation,Message,Chatters
-from website.functions import save_file,extract
+from website.functions import save_file
 
 @app.errorhandler(404)
 def not_found(_):
@@ -78,5 +78,5 @@ def chats():
     
     fetch_time=time.time()-start
     return render_template('conversation.html',msgs=msgs,pov=pov,reciever=reciever,type=type,convos=convos,
-                            chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,unique_id=unique_id,
-                            extract=extract,time=time,fetch_time=fetch_time,parse_time=parse_time)
+                            chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,
+                            unique_id=unique_id,time=time,fetch_time=fetch_time,parse_time=parse_time)
