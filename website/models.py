@@ -13,6 +13,7 @@ class Message(db.Model):
 	date =db.Column(db.DateTime)
 	sender = db.Column(db.String)
 	msg=db.Column(db.String)
+	type=db.Column(db.String,default=None)
 	show_time=db.Column(db.Boolean,default=False)
 	break_space=db.Column(db.Boolean,default=False)
 	convo = db.Column(db.Integer, db.ForeignKey('conversation.id'))

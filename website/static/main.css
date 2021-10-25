@@ -486,3 +486,7 @@ a:hover{
 .no-border{
   border:none
 }
+.italic{
+  font-style:italic;
+  color:#878585;
+}

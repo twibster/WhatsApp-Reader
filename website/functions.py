@@ -81,7 +81,7 @@ def parse(location,file,username):
                     time=extracted.group(2)
                     date=datetime.datetime.strptime(extracted.group(1)+' '+time,handle_time(time))
                     sender= extracted.group(3)
-                    text= extract(extracted.group(4))
+                    text= extracted.group(4)
                     if text =='Missed voice call':
                         time_24=datetime.datetime.strptime(extracted.group(1)+' '+time,handle_time(time))
                         text=text+' at '+time_24.strftime("%I:%M %p")
@@ -93,12 +93,14 @@ def parse(location,file,username):
                         text='- (.*)'
                         time= date.group(2)
                         date=datetime.datetime.strptime(date.group(1)+' '+time,handle_time(time))
-                        text=extract(re.search(text,message).group(1))
+                        text=re.search(text,message).group(1)
                         sender=None
                     else:
-                        msg.msg += '<br>' +extract(message)
+                        text,_=extract(message)
+                        msg.msg += '<br>' + text
                         continue
 
+                text,msg_type = extract(text)
                 chatters.append(sender) if (sender) and (sender not in chatters) else None
 
                 if not first:
@@ -109,9 +111,9 @@ def parse(location,file,username):
                     '''initialize the conversation in the database'''
                     convo=Conversation(session=username)
                     db.session.add(convo)
-
                     
-                msg = Message(date=date,sender=sender,msg=text,conversation=convo,show_time=show_time,break_space=break_space)
+                msg = Message(date=date,sender=sender,msg=text,conversation=convo,
+                            show_time=show_time,break_space=break_space,type=msg_type)
                 db.session.add(msg)
 
     except UnboundLocalError:
@@ -129,8 +131,10 @@ def parse(location,file,username):
 def extract(msg):
     url_regx=r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))"""
     msg= re.sub(url_regx,r"<a href=\1 target='_blank' rel='noopener noreferrer'>\1</a>",msg)
-    msg=re.sub('<Media omitted>','-Media omitted-',msg)
-    return msg
+    italics= ['You deleted this message','This message was deleted','<Media omitted>']
+    type = 'italic' if msg in italics else None
+    msg=re.sub('<Media omitted>','Media file',msg)
+    return msg,type
 
 # def url_extractor(data):
 #     '''this function extracts urls from given strings and replaces them with a link tag'''

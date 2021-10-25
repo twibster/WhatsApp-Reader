@@ -127,9 +127,13 @@
 						{% endif %}
 						{% if not msg.sender %}
 							{% if 'encrypted' in msg.msg %}
-								<div class='msg-div center'><div class='encrypt-msg'>{{msg.msg}}</div></div>
+								<div class='msg-div center'>
+									<div class='encrypt-msg'>{{msg.msg}}</div>
+								</div>
 							{% else %}
-								<div class='msg-div center'><div class='date-msg'>{{msg.msg}}</div></div>
+								<div class='msg-div center'>
+									<div class='date-msg'>{{msg.msg}}</div>
+								</div>
 							{% endif %}
 						{% else %}
 							{% if msg.break_space %}
@@ -137,10 +141,13 @@
 							{% else %}
 								<div class='msg-div'>
 							{% endif %}
+								{% if msg.type =='italic' %}
+									{% set italic ='italic' %}
+								{% endif %}
 								{% if msg.sender ==pov.name %}
-									<div class='sender'>
+									<div class='sender {{italic}}'>
 								{% else %}
-									<div class='reciever'>
+									<div class='reciever {{italic}}'>
 								{% endif %}
 										<span class='msg'>{{msg.msg|safe}}</span>
 										<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
