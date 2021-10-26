@@ -1,13 +1,4 @@
 import os,shutil
-from website import db,app
-
-# reinitialize database tables
-def clear_database():
-
-	db.drop_all()
-	db.create_all()
-
-	return 'Database cleared successfully'
 
 # clear cache directory
 def clear_cache():
@@ -16,4 +7,4 @@ def clear_cache():
 
 	return 'Cache directory cleared successfully'
 
-print(clear_database(),clear_cache(),sep='\n')
+print(clear_cache())

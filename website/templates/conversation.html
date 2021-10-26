@@ -24,7 +24,7 @@
 						</svg>
 					</div>
 					<div class='text-time-container'>
-						{% set last_msg=convo.msgs[-1] %}
+						{% set last_msg=msgs[-1] %}
 						<div class='col-text'>
 							<span class='convo-card-title'>{{convo.title}}</span>
 							{% if len(last_msg.msg) >30 %}
@@ -73,7 +73,7 @@
 				 							<label for="{{chatter.name}}">{{chatter.name}}</label><br>
 			 							</div>
 		    						{% endfor %}
-		    						<input type="hidden" name="id" value="{{pov.convo}}">
+		    						<input type="hidden" name="id" value="{{pov.conversation.id}}">
 		    						<input type="hidden" name="time" value="{{parse_time}}">
 		    						<input type="hidden" name="u" value="{{unique_id}}">
 	    						</div>
@@ -105,12 +105,15 @@
 							{% else %}
 								<div class='msg-div'>
 							{% endif %}
-								{% if msg.sender ==pov.name %}
-									<div class='sender'>
-								{% else %}
-									<div class='reciever'>
+								{% if msg.type =='italic' %}
+									{% set italic ='italic' %}
 								{% endif %}
-								{% set color=chatters.filter_by(name=msg.sender).first().color %}
+								{% if msg.sender ==pov.name %}
+									<div class='sender {{italic}}'>
+								{% else %}
+									<div class='reciever {{italic}}'>
+								{% endif %}
+								{% set color=people.filter_by('name',msg.sender,'=')[0].color %}
 										<span class='msg-sender' style="color:{{color}};">{{msg.sender}}</span>
 										<span class='msg'>{{msg.msg|safe}}</span>
 										<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>

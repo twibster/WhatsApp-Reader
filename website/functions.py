@@ -1,6 +1,6 @@
 import os,secrets,re,random,datetime
-from website.models import Conversation,Message,Chatters
-from website import app,db
+from website.models import Conversation,Message,Chatters,conversations,people,msgs
+from website import app
 from flask import abort,redirect,url_for
 
 def save_file(form_file,username):
@@ -29,36 +29,6 @@ def color_generator():
     color ='#%02X%02X%02X' % (r(),r(),r())
     return color
 
-def add_chatter(chatters,convo,title):
-    if len(chatters)==2:
-        if not title:
-            pov=random.choice(list(chatters))
-            convo.title=[not_pov for not_pov in chatters if not_pov != pov][0]
-        else:
-            convo.title=title
-            pov=[pov for pov in chatters if pov != title][0]
-
-        for chatter in chatters:
-            if chatter==pov:
-                member=Chatters(name=chatter,conversation=convo,pov=True)
-            else:
-                member=Chatters(name=chatter,conversation=convo)
-            db.session.add(member)
-    else:
-        convo.type='group'
-        pov=random.choice(list(chatters))
-
-        if not title:
-            convo.title='group chat'
-        else:
-            convo.title=title
-
-        for chatter in chatters:
-            if chatter==pov:
-                member=Chatters(name=chatter,conversation=convo,pov=True,color=color_generator())
-            else:
-                member=Chatters(name=chatter,conversation=convo,color=color_generator())
-
 def time_format(time):
     time_patterns = ['%H:%M','%I:%M %p','%I:%M a.m.','%I:%M p.m.']
     for pattern in time_patterns:
@@ -76,6 +46,14 @@ def date_format(date):
         except ValueError:
             continue
         return pattern
+
+def handle_msg(msg):
+    url_regx=r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))"""
+    msg= re.sub(url_regx,r"<a href=\1 target='_blank' rel='noopener noreferrer'>\1</a>",msg)
+    italics= ['You deleted this message','This message was deleted','<Media omitted>']
+    type = 'italic' if msg in italics else None
+    msg=re.sub('<Media omitted>','Media file',msg)
+    return msg,type
 
 def parse(location,file,username):
     chat_title= extract_chat_title(file)
@@ -111,7 +89,8 @@ def parse(location,file,username):
                     date_time_format =date_format(date)+' '+time_format(time)
                     '''initialize the conversation in the database'''
                     convo=Conversation(session=username)
-                    db.session.add(convo)
+                    conversations.add(convo)
+                    
 
                 date = datetime.datetime.strptime(date+' '+time, date_time_format)
                 text,msg_type = handle_msg(text)
@@ -123,8 +102,9 @@ def parse(location,file,username):
                     
                 msg = Message(date=date,sender=sender,msg=text,conversation=convo,
                             show_time=show_time,break_space=break_space,type=msg_type)
-                db.session.add(msg)
+                msgs.add(msg)
                 
+        convo.msgs = msgs           
     except UnboundLocalError:
         os.remove(location)
         abort(422)
@@ -132,18 +112,40 @@ def parse(location,file,username):
     except UnicodeDecodeError:
         os.remove(location)
         abort(406)
-
     add_chatter(chatters,convo,chat_title)
-    db.session.commit()
-    return msg.convo
+    return convo.id
+    
+def add_chatter(chatters,convo,title):
+    if len(chatters)==2:
+        if not title:
+            pov=random.choice(list(chatters))
+            convo.title=[not_pov for not_pov in chatters if not_pov != pov][0]
+        else:
+            convo.title=title
+            pov=[pov for pov in chatters if pov != title][0]
 
-def handle_msg(msg):
-    url_regx=r"""(?i)\b((?:https?:(?:/{1,3}|[a-z0-9%])|[a-z0-9.\-]+[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)/)(?:[^\s()<>{}\[\]]+|\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\))+(?:\([^\s()]*?\([^\s()]+\)[^\s()]*?\)|\([^\s]+?\)|[^\s`!()\[\]{};:'".,<>?«»“”‘’])|(?:(?<!@)[a-z0-9]+(?:[.\-][a-z0-9]+)*[.](?:com|net|org|edu|gov|mil|aero|asia|biz|cat|coop|info|int|jobs|mobi|museum|name|post|pro|tel|travel|xxx|ac|ad|ae|af|ag|ai|al|am|an|ao|aq|ar|as|at|au|aw|ax|az|ba|bb|bd|be|bf|bg|bh|bi|bj|bm|bn|bo|br|bs|bt|bv|bw|by|bz|ca|cc|cd|cf|cg|ch|ci|ck|cl|cm|cn|co|cr|cs|cu|cv|cx|cy|cz|dd|de|dj|dk|dm|do|dz|ec|ee|eg|eh|er|es|et|eu|fi|fj|fk|fm|fo|fr|ga|gb|gd|ge|gf|gg|gh|gi|gl|gm|gn|gp|gq|gr|gs|gt|gu|gw|gy|hk|hm|hn|hr|ht|hu|id|ie|il|im|in|io|iq|ir|is|it|je|jm|jo|jp|ke|kg|kh|ki|km|kn|kp|kr|kw|ky|kz|la|lb|lc|li|lk|lr|ls|lt|lu|lv|ly|ma|mc|md|me|mg|mh|mk|ml|mm|mn|mo|mp|mq|mr|ms|mt|mu|mv|mw|mx|my|mz|na|nc|ne|nf|ng|ni|nl|no|np|nr|nu|nz|om|pa|pe|pf|pg|ph|pk|pl|pm|pn|pr|ps|pt|pw|py|qa|re|ro|rs|ru|rw|sa|sb|sc|sd|se|sg|sh|si|sj|Ja|sk|sl|sm|sn|so|sr|ss|st|su|sv|sx|sy|sz|tc|td|tf|tg|th|tj|tk|tl|tm|tn|to|tp|tr|tt|tv|tw|tz|ua|ug|uk|us|uy|uz|va|vc|ve|vg|vi|vn|vu|wf|ws|ye|yt|yu|za|zm|zw)\b/?(?!@)))"""
-    msg= re.sub(url_regx,r"<a href=\1 target='_blank' rel='noopener noreferrer'>\1</a>",msg)
-    italics= ['You deleted this message','This message was deleted','<Media omitted>']
-    type = 'italic' if msg in italics else None
-    msg=re.sub('<Media omitted>','Media file',msg)
-    return msg,type
+        for chatter in chatters:
+            if chatter==pov:
+                member=Chatters(name=chatter,conversation=convo,pov=True)
+            else:
+                member=Chatters(name=chatter,conversation=convo)
+            people.add(member)
+
+    else:
+        convo.type='group'
+        pov=random.choice(list(chatters))
+
+        if not title:
+            convo.title='group chat'
+        else:
+            convo.title=title
+
+        for chatter in chatters:
+            if chatter==pov:
+                member=Chatters(name=chatter,conversation=convo,pov=True,color=color_generator())
+            else:
+                member=Chatters(name=chatter,conversation=convo,color=color_generator())
+            people.add(member)
 
 # def url_extractor(data):
 #     '''this function extracts urls from given strings and replaces them with a link tag'''

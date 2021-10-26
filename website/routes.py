@@ -1,7 +1,7 @@
 import datetime,time,random,os
 from flask import render_template,redirect,url_for,request,abort,session
-from website import app,db
-from website.models import Conversation,Message,Chatters
+from website import app
+from website.models import Conversation,Message,Chatters,conversations,people,msgs
 from website.functions import save_file
 
 @app.errorhandler(404)
@@ -22,6 +22,10 @@ def not_found(_):
     
 @app.route("/",methods =['GET','POST'])
 def home():
+    conversations.clear()
+    msgs.clear()
+    people.clear()
+
     error=request.args.get('error')
     if request.method=='POST':
         unique_id=os.urandom(8).hex()
@@ -31,6 +35,15 @@ def home():
         return redirect(url_for('chats',id=id,time=end-start,u=unique_id))
     return render_template('home.html',error=error)
 
+def get_pov():
+    pov,reciever=None,None
+    for chatter in people:
+        if chatter.pov==True:
+            pov =chatter
+        else:
+            reciever=chatter.name
+    return pov,reciever
+
 @app.route('/chats',methods=['GET','POST'])
 def chats():
     start=time.time()
@@ -39,44 +52,38 @@ def chats():
 
     id=request.args.get('id')
     pov=request.args.get('pov')
+    convos=conversations.filter_by('id',int(id),'=')
+    chatters=people.filter_by('conversation',convos[0],'=')
+    messages = msgs.filter_by('conversation',convos[0],'=')
 
-    msgs =Message.query.filter_by(convo=id).order_by(Message.id)
-    convos=Conversation.query.filter_by(id=id)
-    chatters=Chatters.query.filter_by(convo=id)
+    if unique_id:
+        if conversations.filter_by('id',int(id),'=')[0].session != unique_id:
+            abort(401)
+    else:
+        return redirect(url_for('home',error='Your session has expired'))
 
-    try:
-        if unique_id:
-            if convos.first().session != unique_id:
-                abort(401)
-        else:
-            return redirect(url_for('home',error='Your session has expired'))
-
-        if pov:
-            pov=chatters.filter_by(name=pov).first()
-            pov.pov=True
-            if pov.conversation.type=='private':
-                other = chatters.filter(Chatters.id != pov.id).first()
-                other.pov=False
-                other.conversation.title=other.name
-            else:
-                for chatter in chatters.filter(Chatters.id != pov.id):
-                    if chatter.pov ==True:
-                        chatter.pov =False
-            db.session.commit()
-            chatters=Chatters.query.filter_by(convo=id)
-        else:
-            pov=chatters.filter_by(pov=True).first()
-        
+    if pov:
+        pov=people.filter_by('name',pov,'=')[0]
+        pov.pov=True
         if pov.conversation.type=='private':
-            type='private'
-            reciever=chatters.filter_by(pov=False).first().name
+            other = people.filter_by('id',pov.id,'!=')[0]
+            other.pov=False
+            other.conversation.title=other.name
+            reciever=other.name
         else:
-            type='group'
-            reciever=pov.conversation.title
-    except AttributeError:
-        abort(404)
+            for chatter in people.filter_by('id',pov.id,'!='):
+                if chatter.pov ==True:
+                    chatter.pov =False
+    else:
+        pov,reciever=get_pov()
     
+    if pov.conversation.type=='private':
+        type='private'
+    else:
+        type='group'
+        reciever=pov.conversation.title
+ 
     fetch_time=time.time()-start
-    return render_template('conversation.html',msgs=msgs,pov=pov,reciever=reciever,type=type,convos=convos,
-                            chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,
+    return render_template('conversation.html',msgs=messages,pov=pov,reciever=reciever,type=type,convos=convos,
+                            chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,people=people,
                             unique_id=unique_id,time=time,fetch_time=fetch_time,parse_time=parse_time)
