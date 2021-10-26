@@ -52,36 +52,41 @@ def chats():
 
     id=request.args.get('id')
     pov=request.args.get('pov')
-    convos=conversations.filter_by('id',int(id),'=')
-    chatters=people.filter_by('conversation',convos[0],'=')
-    messages = msgs.filter_by('conversation',convos[0],'=')
 
-    if unique_id:
-        if conversations.filter_by('id',int(id),'=')[0].session != unique_id:
-            abort(401)
-    else:
-        return redirect(url_for('home',error='Your session has expired'))
+    try:
+        convos=conversations.filter_by('id',int(id),'=')
+        chatters=people.filter_by('conversation',convos[0],'=')
+        messages = msgs.filter_by('conversation',convos[0],'=')
 
-    if pov:
-        pov=people.filter_by('name',pov,'=')[0]
-        pov.pov=True
-        if pov.conversation.type=='private':
-            other = people.filter_by('id',pov.id,'!=')[0]
-            other.pov=False
-            other.conversation.title=other.name
-            reciever=other.name
+        if unique_id:
+            if conversations.filter_by('id',int(id),'=')[0].session != unique_id:
+                abort(401)
         else:
-            for chatter in people.filter_by('id',pov.id,'!='):
-                if chatter.pov ==True:
-                    chatter.pov =False
-    else:
-        pov,reciever=get_pov()
-    
-    if pov.conversation.type=='private':
-        type='private'
-    else:
-        type='group'
-        reciever=pov.conversation.title
+            return redirect(url_for('home',error='Your session has expired'))
+
+        if pov:
+            pov=people.filter_by('name',pov,'=')[0]
+            pov.pov=True
+            if pov.conversation.type=='private':
+                other = people.filter_by('id',pov.id,'!=')[0]
+                other.pov=False
+                other.conversation.title=other.name
+                reciever=other.name
+            else:
+                for chatter in people.filter_by('id',pov.id,'!='):
+                    if chatter.pov ==True:
+                        chatter.pov =False
+        else:
+            pov,reciever=get_pov()
+        
+        if pov.conversation.type=='private':
+            type='private'
+        else:
+            type='group'
+            reciever=pov.conversation.title
+
+    except (AttributeError,IndexError):
+        abort(404)
  
     fetch_time=time.time()-start
     return render_template('conversation.html',msgs=messages,pov=pov,reciever=reciever,type=type,convos=convos,
