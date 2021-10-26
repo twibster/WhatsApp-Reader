@@ -105,10 +105,13 @@
 							{% else %}
 								<div class='msg-div'>
 							{% endif %}
+								{% if msg.type =='italic' %}
+									{% set italic ='italic' %}
+								{% endif %}
 								{% if msg.sender ==pov.name %}
-									<div class='sender'>
+									<div class='sender {{italic}}'>
 								{% else %}
-									<div class='reciever'>
+									<div class='reciever {{italic}}'>
 								{% endif %}
 								{% set color=chatters.filter_by(name=msg.sender).first().color %}
 										<span class='msg-sender' style="color:{{color}};">{{msg.sender}}</span>
