@@ -1,0 +1,73 @@
+{% if type =='group' %}
+	{% for msg in msgs %}
+		{% if msg.show_time%}
+			<div class='msg-div center'>
+				<div class='date-msg'>{{datetime.strftime(msg.date,'%#m/%#d/%Y')}}</div>
+			</div>
+		{% endif %}
+		{% if not msg.sender %}
+			{% if 'encrypted' in msg.msg %}
+				<div class='msg-div center'><div class='encrypt-msg'>{{msg.msg}}</div></div>
+			{% else %}
+				<div class='msg-div center'><div class='date-msg'>{{msg.msg}}</div></div>
+			{% endif %}
+		{% else %}
+			{% if msg.break_space %}
+				<div class='msg-div space'>
+			{% else %}
+				<div class='msg-div'>
+			{% endif %}
+				{% if msg.type =='italic' %}
+					{% set italic ='italic' %}
+				{% endif %}
+				{% if msg.sender ==pov.name %}
+					<div class='sender {{italic}}'>
+				{% else %}
+					<div class='reciever {{italic}}'>
+				{% endif %}
+				{% set color=chatters.filter_by(name=msg.sender).first().color %}
+						<span class='msg-sender' style="color:{{color}};">{{msg.sender}}</span>
+						<span class='msg'>{{msg.msg|safe}}</span>
+						<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+					</div>
+				</div>
+		{% endif %}
+	{% endfor %}
+{% else %}
+	{% for msg in msgs %}
+		{% if msg.show_time %}
+			<div class='msg-div center'>
+				<div class='date-msg'>{{datetime.strftime(msg.date,'%#m/%#d/%Y')}}</div>
+			</div>
+		{% endif %}
+		{% if not msg.sender %}
+			{% if 'encrypted' in msg.msg %}
+				<div class='msg-div center'>
+					<div class='encrypt-msg'>{{msg.msg}}</div>
+				</div>
+			{% else %}
+				<div class='msg-div center'>
+					<div class='date-msg'>{{msg.msg}}</div>
+				</div>
+			{% endif %}
+		{% else %}
+			{% if msg.break_space %}
+				<div class='msg-div space'>
+			{% else %}
+				<div class='msg-div'>
+			{% endif %}
+				{% if msg.type =='italic' %}
+					{% set italic ='italic' %}
+				{% endif %}
+				{% if msg.sender ==pov.name %}
+					<div class='sender {{italic}}'>
+				{% else %}
+					<div class='reciever {{italic}}'>
+				{% endif %}
+						<span class='msg'>{{msg.msg|safe}}</span>
+						<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+					</div>
+				</div>
+		{% endif %}
+	{% endfor %}
+{% endif %}

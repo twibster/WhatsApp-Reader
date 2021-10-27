@@ -55,7 +55,7 @@
 					<div class='dropdown-content' id='three-dot'>
 						<button class='no-border' onclick="show_pov()">Change POV</button>
 						<button class='no-border' onclick="loading_stats()">Loading stats</button>
-						<button class='align-btn' onclick='align_right(this);'>Right align</button>
+						<button class='align-btn' onclick='align();'>Reverse alignment</button>
 					</div>
 					<div id='povModal' class='add-modal'>
 						<div class='add-modal-content'>
@@ -85,81 +85,7 @@
 					</div>
 				</div>
 			</div>
-			<div class='convo-body'>
-				{% if type =='group' %}
-					{% for msg in msgs %}
-						{% if msg.show_time%}
-							<div class='msg-div center'>
-								<div class='date-msg'>{{datetime.strftime(msg.date,'%#m/%#d/%Y')}}</div>
-							</div>
-						{% endif %}
-						{% if not msg.sender %}
-							{% if 'encrypted' in msg.msg %}
-								<div class='msg-div center'><div class='encrypt-msg'>{{msg.msg}}</div></div>
-							{% else %}
-								<div class='msg-div center'><div class='date-msg'>{{msg.msg}}</div></div>
-							{% endif %}
-						{% else %}
-							{% if msg.break_space %}
-								<div class='msg-div space'>
-							{% else %}
-								<div class='msg-div'>
-							{% endif %}
-								{% if msg.type =='italic' %}
-									{% set italic ='italic' %}
-								{% endif %}
-								{% if msg.sender ==pov.name %}
-									<div class='sender {{italic}}'>
-								{% else %}
-									<div class='reciever {{italic}}'>
-								{% endif %}
-								{% set color=chatters.filter_by(name=msg.sender).first().color %}
-										<span class='msg-sender' style="color:{{color}};">{{msg.sender}}</span>
-										<span class='msg'>{{msg.msg|safe}}</span>
-										<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
-									</div>
-								</div>
-						{% endif %}
-					{% endfor %}
-				{% else %}
-					{% for msg in msgs %}
-						{% if msg.show_time %}
-							<div class='msg-div center'>
-								<div class='date-msg'>{{datetime.strftime(msg.date,'%#m/%#d/%Y')}}</div>
-							</div>
-						{% endif %}
-						{% if not msg.sender %}
-							{% if 'encrypted' in msg.msg %}
-								<div class='msg-div center'>
-									<div class='encrypt-msg'>{{msg.msg}}</div>
-								</div>
-							{% else %}
-								<div class='msg-div center'>
-									<div class='date-msg'>{{msg.msg}}</div>
-								</div>
-							{% endif %}
-						{% else %}
-							{% if msg.break_space %}
-								<div class='msg-div space'>
-							{% else %}
-								<div class='msg-div'>
-							{% endif %}
-								{% if msg.type =='italic' %}
-									{% set italic ='italic' %}
-								{% endif %}
-								{% if msg.sender ==pov.name %}
-									<div class='sender {{italic}}'>
-								{% else %}
-									<div class='reciever {{italic}}'>
-								{% endif %}
-										<span class='msg'>{{msg.msg|safe}}</span>
-										<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
-									</div>
-								</div>
-						{% endif %}
-					{% endfor %}
-				{% endif %}
-			</div>
+			<div class='convo-body' id='body'></div>
 		</div>
 	</div>
 {% set display_time=time.time()-start %}
@@ -170,14 +96,42 @@
 	</div>
 </div>
 <script type="text/javascript" src="static/scripts/modals_dropdowns.js"></script>
-<script type="text/javascript" src="static/scripts/msgAlignment.js"></script>
+<script type="text/javascript" src="static/scripts/msgAlign.js"></script>
 <script type="text/javascript">
 	function loading_stats() {
 	  var parse_time={{parse_time|tojson}};
 	  var fetch_time={{fetch_time|tojson}};
 	  var display_time={{display_time|tojson}}
+	  
 	  show_modal();
 	  p.innerHTML='<b>Parsing time</b>: '+parseFloat(parse_time).toFixed(4)+'s<br>'+'<b>Fetching time</b>: '+parseFloat(fetch_time).toFixed(4)+'s<br>'+'<b>Rendering time</b>: '+parseFloat(display_time).toFixed(4)+'s'
 	}
+</script>
+<script type="text/javascript">
+	var start=0
+	var end =100
+	var empty =false
+	var id ={{id|tojson}}
+	var getMessages =function(start,end){
+		if (!(empty)){
+			$.getJSON('/fetch_conversation?id='+id+'&start='+start+'&end='+end+'',
+	            function(data) {
+	            	empty = jQuery.isEmptyObject(data)
+	            	console.log(start,end)
+	            	$('#body').append(data.msgs)
+		        }
+	        );
+	    }
+	};
+	getMessages(start,end)
+	window.onscroll = function(ev) {
+	    if ((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+	    	if (!(empty)) {
+		    	start=start + 100
+			   	end= end + 100
+			   	getMessages(start,end)
+		   }
+	    }
+	};
 </script>
 {% endblock %}

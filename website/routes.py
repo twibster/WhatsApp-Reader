@@ -1,5 +1,5 @@
 import datetime,time,random,os
-from flask import render_template,redirect,url_for,request,abort,session
+from flask import render_template,redirect,url_for,request,abort,session,jsonify
 from website import app,db
 from website.models import Conversation,Message,Chatters
 from website.functions import save_file
@@ -40,7 +40,6 @@ def chats():
     id=request.args.get('id')
     pov=request.args.get('pov')
 
-    msgs =Message.query.filter_by(convo=id).order_by(Message.id)
     convos=Conversation.query.filter_by(id=id)
     chatters=Chatters.query.filter_by(convo=id)
 
@@ -73,10 +72,33 @@ def chats():
         else:
             type='group'
             reciever=pov.conversation.title
+
     except AttributeError:
         abort(404)
     
     fetch_time=time.time()-start
-    return render_template('conversation.html',msgs=msgs,pov=pov,reciever=reciever,type=type,convos=convos,
-                            chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,
+    return render_template('conversation.html',pov=pov,reciever=reciever,convos=convos,
+                            datetime=datetime.datetime,len=len,id=id,chatters=chatters,
                             unique_id=unique_id,time=time,fetch_time=fetch_time,parse_time=parse_time)
+
+@app.route('/fetch_conversation',methods=['GET'])
+def fetch():
+    id=int(request.args.get('id'))
+    start=int(request.args.get('start'))
+    end=int(request.args.get('end'))
+
+    msgs =Message.query.filter_by(convo=id).order_by(Message.id)[start:end]
+    chatters=Chatters.query.filter_by(convo=id)
+    pov=chatters.filter_by(pov=True).first()
+        
+    if pov.conversation.type=='private':
+        type='private'
+        reciever=chatters.filter_by(pov=False).first().name
+    else:
+        type='group'
+        reciever=pov.conversation.title
+
+    if len(msgs) ==0:
+        return jsonify()
+        
+    return jsonify({'msgs':render_template('msgs.html',pov=pov,msgs = msgs,type=type,chatters=chatters,len=len,datetime=datetime.datetime)})
