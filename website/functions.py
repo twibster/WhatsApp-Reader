@@ -5,8 +5,8 @@ from flask import abort,redirect,url_for
 
 def save_file(form_file,username):
     if form_file:
-        random_hex = secrets.token_hex(8) # generate random name for the file
         file_text, file_ext = os.path.splitext(form_file.filename) # extract the name and extension of the original file
+        random_hex = secrets.token_hex(8) # generate random name for the file
         file_filename = random_hex + file_ext # create the random name for the file
         file_path = os.path.join(app.root_path,'chats',file_filename) # create the path to save the file
         try:

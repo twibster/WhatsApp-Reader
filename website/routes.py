@@ -1,5 +1,5 @@
 import datetime,time,random,os
-from flask import render_template,redirect,url_for,request,abort,session
+from flask import render_template,redirect,url_for,request,abort,session,jsonify
 from website import app
 from website.models import Conversation,Message,Chatters,conversations,people,msgs
 from website.functions import save_file
@@ -89,6 +89,27 @@ def chats():
         abort(404)
  
     fetch_time=time.time()-start
-    return render_template('conversation.html',msgs=messages,pov=pov,reciever=reciever,type=type,convos=convos,
-                            chatters=chatters,datetime=datetime.datetime,enumerate=enumerate,len=len,people=people,
-                            unique_id=unique_id,time=time,fetch_time=fetch_time,parse_time=parse_time)
+    return render_template('conversation.html',msgs=messages,pov=pov,reciever=reciever,type=type,chatters=chatters,
+                            convos=convos,id=id,datetime=datetime.datetime,enumerate=enumerate,len=len,
+                            people=people,unique_id=unique_id,time=time,fetch_time=fetch_time,
+                            parse_time=parse_time)
+
+@app.route('/fetch_conversation',methods=['GET'])
+def fetch():
+    id=int(request.args.get('id'))
+    start=int(request.args.get('start'))
+    end=int(request.args.get('end'))
+
+    convos=conversations.filter_by('id',int(id),'=')
+    messages =msgs.filter_by('conversation',convos[0],'=')[start:end]
+    pov=people.filter_by('pov',True,'=')[0]
+        
+    if pov.conversation.type=='private':
+        type='private'
+    else:
+        type='group'
+
+    if len(messages) ==0:
+        return jsonify()
+        
+    return jsonify({'msgs':render_template('msgs.html',pov=pov,msgs = messages,type=type,people=people,len=len,datetime=datetime.datetime)})
