@@ -490,3 +490,28 @@ a:hover{
   font-style:italic;
   color:#878585;
 }
+.lds-dual-ring {
+  display: table;
+  width: 40px;
+  height: 40px;
+  margin: 0 auto;
+}
+.lds-dual-ring:after {
+  content: " ";
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin: 8px;
+  border-radius: 50%;
+  border: 6px solid grey;
+  border-color: grey transparent grey transparent;
+  animation: lds-dual-ring 1.2s linear infinite;
+}
+@keyframes lds-dual-ring {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
