@@ -117,6 +117,7 @@
 	            function(data) {
 	            	empty = jQuery.isEmptyObject(data)
 	            	console.log(start,end)
+	            	$('#animation-container').remove();	
 	            	$('#body').append(data.msgs)
 		        }
 	        );
