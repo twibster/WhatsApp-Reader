@@ -55,6 +55,7 @@
 					<div class='dropdown-content' id='three-dot'>
 						<button class='no-border' onclick="show_pov()">Change POV</button>
 						<button class='no-border' onclick="loading_stats()">Loading stats</button>
+						<button class='no-border' onclick="delete_conversation()">Delete conversation</button>
 						<button class='align-btn' onclick='align();'>Reverse alignment</button>
 					</div>
 					<div id='povModal' class='add-modal'>
@@ -106,15 +107,23 @@
 	  show_modal();
 	  p.innerHTML='<b>Parsing time</b>: '+parseFloat(parse_time).toFixed(4)+'s<br>'+'<b>Fetching time</b>: '+parseFloat(fetch_time).toFixed(4)+'s<br>'+'<b>Rendering time</b>: '+parseFloat(display_time).toFixed(4)+'s'
 	}
+	function delete_conversation(){
+		var id ={{id|tojson}}
+		var unique_id ={{unique_id|tojson}}
+		var base_url = window.location.origin;
+		redirect_url = base_url+'/delete_conversation?id='+id+'&u='+unique_id;
+		window.location.replace(redirect_url);
+	}
 </script>
 <script type="text/javascript">
 	var start=0
 	var end =100
 	var empty =false
 	var id ={{id|tojson}}
+	var unique_id ={{unique_id|tojson}}
 	var getMessages =function(start,end){
 		if (!(empty)){
-			$.getJSON('/fetch_conversation?id='+id+'&start='+start+'&end='+end+'',
+			$.getJSON('/fetch_conversation?id='+id+'&start='+start+'&end='+end+'&u='+unique_id+'',
 	            function(data) {
 	            	empty = jQuery.isEmptyObject(data)
 	            	console.log(start,end)

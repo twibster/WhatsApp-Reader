@@ -467,12 +467,18 @@ a:hover{
   margin:auto;
   margin-top:10px;
 }
-.file-error{
+.file-msg{
+ padding:1px;
+ border-radius:4px;
+ transition:0.4s; 
+}
+.error{
   color: #D8000C;
   background-color: #FFD2D2;
-  padding:1px;
-  border-radius:4px;
-  transition:0.4s;
+}
+.success{
+  color: #4F8A10;
+  background-color: #DFF2BF;
 }
 .menu-img{
   margin-bottom:-6px;
