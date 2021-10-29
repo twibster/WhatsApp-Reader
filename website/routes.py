@@ -4,36 +4,39 @@ from website import app
 from website.models import Conversation,Message,Chatters,conversations,people,msgs
 from website.functions import save_file
 
+errors=["This conversation doesn't exist",'Invalid WhatsApp chat file',"You are not the owner of this conversation","Your phone language must be English before exporting the conversation"]
+
 @app.errorhandler(404)
 def not_found(_):
-    return redirect(url_for('home',error="This conversation doesn't exist"))
+    return redirect(url_for('home',error=errors[0],error_class='error'))
 
 @app.errorhandler(422)
 def invalid_file(_):
-    return redirect(url_for('home',error='Invalid WhatsApp chat file'))
+    return redirect(url_for('home',error=errors[1],error_class='error'))
 
 @app.errorhandler(401)
 def unautherized(_):
-    return redirect(url_for('home',error="You are not the owner of this conversation"))
+    return redirect(url_for('home',error=errors[2],error_class='error'))
 
 @app.errorhandler(406)
 def not_found(_):
-    return redirect(url_for('home',error="Your phone language must be English before exporting the conversation"))
+    return redirect(url_for('home',error=errors[3],error_class='error'))
     
 @app.route("/",methods =['GET','POST'])
 def home():
-    conversations.clear()
-    msgs.clear()
-    people.clear()
-
     error=request.args.get('error')
+    error_class=request.args.get('error_class')
+
+    if error not in errors:
+        error,error_class=None,None
+
     if request.method=='POST':
         unique_id=os.urandom(8).hex()
         start=time.time()
         id = save_file(request.files['txt_file'],unique_id)
         end=time.time()
         return redirect(url_for('chats',id=id,time=end-start,u=unique_id))
-    return render_template('home.html',error=error)
+    return render_template('home.html',error=error,error_class=error_class)
 
 def get_pov():
     pov,reciever=None,None
@@ -96,12 +99,25 @@ def chats():
 
 @app.route('/fetch_conversation',methods=['GET'])
 def fetch():
-    id=int(request.args.get('id'))
-    start=int(request.args.get('start'))
-    end=int(request.args.get('end'))
+    try:
+        id=int(request.args.get('id'))
+        start=int(request.args.get('start'))
+        end=int(request.args.get('end'))
+        unique_id=request.args.get('u')
+    except (ValueError,TypeError):
+        return jsonify('invalid inputs')
 
-    convos=conversations.filter_by('id',int(id),'=')
-    messages =msgs.filter_by('conversation',convos[0],'=')[start:end]
+    try:
+        convos=conversations.filter_by('id',int(id),'=')
+        messages =msgs.filter_by('conversation',convos[0],'=')[start:end]
+    except IndexError:
+        return jsonify()
+
+    if len(messages) ==0:
+        return jsonify()
+    elif convos[0].session != unique_id:
+        return jsonify('You do not have permission for this request')
+        
     pov=people.filter_by('pov',True,'=')[0]
         
     if pov.conversation.type=='private':
@@ -109,7 +125,5 @@ def fetch():
     else:
         type='group'
 
-    if len(messages) ==0:
-        return jsonify()
-        
+    
     return jsonify({'msgs':render_template('msgs.html',pov=pov,msgs = messages,type=type,people=people,len=len,datetime=datetime.datetime)})

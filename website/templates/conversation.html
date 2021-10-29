@@ -111,9 +111,10 @@
 	var end =100
 	var empty =false
 	var id ={{id|tojson}}
+	var unique_id ={{unique_id|tojson}}
 	var getMessages =function(start,end){
 		if (!(empty)){
-			$.getJSON('/fetch_conversation?id='+id+'&start='+start+'&end='+end+'',
+			$.getJSON('/fetch_conversation?id='+id+'&start='+start+'&end='+end+'&u='+unique_id+'',
 	            function(data) {
 	            	empty = jQuery.isEmptyObject(data)
 	            	console.log(start,end)

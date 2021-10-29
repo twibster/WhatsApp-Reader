@@ -146,7 +146,7 @@ def add_chatter(chatters,convo,title):
             else:
                 member=Chatters(name=chatter,conversation=convo,color=color_generator())
             people.add(member)
-
+              
 # def url_extractor(data):
 #     '''this function extracts urls from given strings and replaces them with a link tag'''
 #     extractor = URLExtract()
