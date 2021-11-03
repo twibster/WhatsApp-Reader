@@ -1,6 +1,7 @@
 body{
   background-color: #131c21;
-  font-family: "Segoe UI"
+  font-family: "Segoe UI";
+  overflow:hidden;
 }
 .outer-home{
   text-align: center;
@@ -235,6 +236,16 @@ body{
   outline: none;
   color:#dedee0;
 }
+.convos-cards{
+  overflow:auto;
+  max-height:85vh;
+}
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #323739; 
+}
 .convo-card{
   display:flex;
   padding:5px;
@@ -243,10 +254,7 @@ body{
   transition:0.3s;
 }
 .convo-card:hover{
-  background-color:#2d3134;
-}
-.convo-card:focus{
-  background-color:#323739;
+  background-color:#2d3134 !important;
 }
 .convo-img{
   padding:7px;
@@ -295,7 +303,9 @@ body{
   cursor: pointer;
 }
 .convo-body{
-  margin-top: 10px;
+  margin-bottom:4px;
+  overflow:auto;
+  max-height:90vh;
 }
 .center{
   text-align: center;
