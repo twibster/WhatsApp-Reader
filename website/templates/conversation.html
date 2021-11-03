@@ -44,7 +44,7 @@
 						<button class='add-btn'>+
 							<input accept=".txt,.zip" id="txt-file" name="txt_file" style='display: none;' onchange="document.getElementById('file-form').submit();" type="file">
 						</button>
-						<script type="text/javascript" src="static/scripts/validator.js"></script>
+						<script type="text/javascript" src="static/scripts/Validator.js"></script>
 					</form>
 				</div>
 			</div>
@@ -104,7 +104,6 @@
 	            function(data) {
 	            	empty = jQuery.isEmptyObject(data)
 	            	console.log(start,end)
-	            	console.log(data)
 	            	$('#animation-container').remove();	
 	            	if (clear ==false){
 	            		$('#body').append(data.msgs)
