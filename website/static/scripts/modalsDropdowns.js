@@ -2,7 +2,6 @@ var modal=document.getElementById('addModal')
 var drop =document.getElementById('three-dot')
 var pov_modal=document.getElementById('povModal')
 var dropdown_div =document.getElementById('dropdown-div')
-var p =document.getElementById('content')
 // var sticky_elements =document.getElementsByClassName('sticky-msg')
 
 function show_modal(){
@@ -10,7 +9,6 @@ function show_modal(){
   // for (i = 0; i < sticky_elements.length; i++) {
   //   sticky_elements[i].classList.remove("sticky-msg");
   // }
-  p.innerHTML='This Feature is yet to come, stay tuned.'
   modal.classList.add('show');
 }
 function close_modal(){
@@ -27,6 +25,12 @@ function hide_dropdown(){
   drop.classList.remove('show-drop')
 }
 function show_pov(){
+  $('.chatters').empty()
+  $.getJSON('/fetch_conversation?id='+id,
+      function(data) {
+        $('.chatters').append(data.chatters)
+    }
+  );
   pov_modal.classList.add('show')
 }
 function hide_pov(){

@@ -1,0 +1,13 @@
+{% for chatter in chatters %}
+	<div class='chatter'>
+		{% if chatter.name == pov.name %}
+			<input type="radio" id="{{chatter.name}}" name="pov" value="{{chatter.name}}" checked="yes">
+		{% else %}
+			<input type="radio" id="{{chatter.name}}" name="pov" value="{{chatter.name}}">
+		{% endif %}
+			<label for="{{chatter.name}}">{{chatter.name}}</label><br>
+		</div>
+{% endfor %}
+<input type="hidden" name="id" value="{{pov.convo}}">
+<input type="hidden" name="time" value="{{parse_time}}">
+<input type="hidden" name="u" value="{{pov.conversation.session}}">
