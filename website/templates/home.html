@@ -1,14 +1,14 @@
 {% extends 'layout.html' %}
 {% block content %}
 	<div class='outer-home'>
-		<div class='up-row'>
-			<div class='logo-container'>
-				<img src='static/images/whatsapp.png' class='logo-img'>
-				<p class='logo-txt'>WHATSAPP READER</p>
+		<form  method='POST' action="" enctype='multipart/form-data' onsubmit="return validate_form()">
+			<div class='up-row'>
+				<div class='logo-container'>
+					<img src='static/images/whatsapp.png' class='logo-img'>
+					<p class='logo-txt'>WHATSAPP READER</p>
+				</div>
 			</div>
-		</div>
-		<div class='down-row' id='down'>
-			<form  method='POST' action="" enctype='multipart/form-data' onsubmit="return validate_form()">
+			<div class='down-row' id='down'>
 			{% if error %}
 				<div class='file-msg {{error_class}}'>
 					<p>{{error}}</p>
@@ -35,8 +35,8 @@
 				<div class='file-submit'>
 					<input type="submit" name="Submit" value='SUBMIT' class='submit' id='submit-btn'>
 				</div>
-			</form>
-		</div>
+			</div>
+		</form>
 		<script type="text/javascript" src="static/scripts/homeMobile.js"></script>
 	</div>
 	<script type="text/javascript" src="static/scripts/Validator.js"></script>

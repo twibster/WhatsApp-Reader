@@ -113,7 +113,8 @@
 	            	}
 	            	else{
 	            		$('#body').empty().append(data.msgs)
-	            	}	
+	            	}
+	            	checkHeight()
 		        }
 	        );
 	    }
@@ -133,5 +134,11 @@
 	    	}	
 	    }
 	};
+	function checkHeight(){
+		if (body.scrollHeight <= window.innerHeight){
+			$('#animation-container').remove();	
+		}	
+	}
+	body.style.maxHeight=window.innerHeight -60
 </script>
 {% endblock %}

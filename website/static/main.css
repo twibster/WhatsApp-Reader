@@ -2,6 +2,9 @@ body{
   background-color: #131c21;
   font-family: "Segoe UI";
   overflow:hidden;
+  overflow-x:hidden !important;
+  padding:0px;
+  margin:0px;
 }
 .outer-home{
   text-align: center;
@@ -15,6 +18,7 @@ body{
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
 }
 #txt-file{
+  display:none;
   opacity:0;
   height:100%;
   width:100%;
@@ -22,8 +26,9 @@ body{
 }
 .txt-label{
   color:#00af9c;
-  display:inline-block;
-  margin-top:-36px
+  display: table-cell;
+  text-align: center;
+  vertical-align:middle;
 }
 .submit{
   border-radius:3px;
@@ -41,7 +46,7 @@ body{
 }
 .row {
   display: flex;
-  margin:-7px;
+  height:100%;
 }
 .convos-col{
   flex: 30%;
@@ -134,7 +139,6 @@ body{
   top: 0;
   width: 100%;
   align-items: center;
-  margin-top:-1px
 }
 .reciever-img{
   padding: 3px;
@@ -146,13 +150,12 @@ body{
 .reciever-name{
   color:#dedee0;
   font-weight:bolder;
-  margin-bottom:20px;
 }
 .dropdown{
   position: relative;
   display: inline-block;
   margin-top:8px;
-  margin-right:17px;
+  margin-right:8px;
   float: right;
   color:#dedee0;
   padding:7px;
@@ -410,13 +413,10 @@ a:hover{
   height:30%;
   width:100%;
   display:table;
-  margin-top:-8px;
-  padding-left:17px;
-  margin-left:-8px;
 }
 .logo-container{
   margin:auto;
-  margin-top:12px;
+  margin-top:14px;
 }
 .logo-img{
   width:24;
@@ -425,23 +425,20 @@ a:hover{
 }
 .down-row{
   position:relative;
-  display:table;
   margin:auto;
+  display:table;
   z-index:1;
   height:80%;
   background-color:#2f3437;
   width:70%;
   margin-top:-120;
   border-radius:4px;
-  overflow:auto;
+  overflow:overlay;
   box-shadow: 0px 8px 16px 0px #00c3ae1f;
 }
 
 .info-file-container{
   padding:20px;
-  width:90%;
-  height:70%;
-
 }
 .info{
   color:white;
@@ -460,25 +457,22 @@ a:hover{
   margin-bottom:-12px;
 }
 .file{
-  display:table;
   margin:auto;
+  width:70%;
+  display:table;
   height:50px;
   transition:0.4s;
   background-color: transparent;
   cursor:pointer;
   border-radius:5px;
-  overflow:hidden;
-  width:70%;
-  margin-top:15;
   border: 0.01em solid grey;
 }
 .file:hover{
   background-color:#454a4c;
 }
 .file-submit{
-  display:table;
-  margin:auto;
   margin-top:10px;
+  margin-bottom:10px;
 }
 .file-msg{
  padding:1px;
