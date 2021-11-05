@@ -133,14 +133,13 @@ body{
   margin-top:5px;
   text-align:right;
 }
-.header, .header-convo{
+.header{
   background-color: #323739;
   display:flex;;
   height:60px;
-  position: -webkit-sticky;
-  position: sticky;
   top: 0;
   width: 100%;
+  overflow:hidden;
   align-items: center;
 }
 .reciever-img{
@@ -152,8 +151,6 @@ body{
   margin-left:15px;
 }
 .dropdown{
-  position: relative;
-  display: inline-block;
   margin-top:8px;
   margin-right:8px;
   margin-left:auto;
@@ -177,14 +174,14 @@ body{
   height:0;
   opacity:0;
   position: absolute;
-  right:0;
+  right:5;
   border-radius:4px;
   margin-top:10px;
   background-color: #323739;
   min-width: 160px;
   box-shadow: 0px 8px 16px 0px rgb(0 0 0 / 43%);
   z-index: 1;
-  overflow:hidden;
+  overflow:auto;
 }
 .dropdown-content button{
   background-color: transparent;
@@ -210,7 +207,7 @@ body{
   border-bottom: 0.5pt solid #394045;
   text-align:center;
   margin-top:-6px;
-  overflow: auto;
+  overflow: hidden;
 }
 .search-box{
   background-color: #323739;
@@ -374,6 +371,7 @@ a:hover{
 .show-drop{
   height:auto;
   opacity: 1;
+  width:50px;
 }
 .chatters{
   display: inline-block;
@@ -562,13 +560,13 @@ a:hover{
   color:grey;
 }
 @media screen and (max-width: 480px) {
-  .row{
-    display:flex;
-  }
   .convos-col{
     flex:none;
     width:0%;
     height:0%;
+  }
+  .convo-col{
+    width:0;
   }
   .side-show-btn ,.side-hide-btn{
     opacity:1;
@@ -581,10 +579,4 @@ a:hover{
 .visible{
   width:100%;
   height:100%;
-}
-.hide-body{
-  width:0;
-}
-.hide-header{
-  display:none;
 }
