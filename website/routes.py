@@ -4,7 +4,7 @@ from website import app,db
 from website.models import Conversation,Message,Chatters
 from website.functions import save_file,pre_parse
 
-errors=["This conversation doesn't exist or has been deleted",'Invalid WhatsApp chat file',"You are not the owner of this conversation",'Your session has expired',"Your phone language must be English before exporting the conversation",'Your chat was deleted successfully']
+errors=["This conversation doesn't exist or has been deleted",'Invalid WhatsApp chat file',"Your conversation has been deleted","You are not the owner of this conversation",'Your session has expired',"Your phone language must be English before exporting the conversation",'Your chat was deleted successfully']
 
 @app.errorhandler(404)
 def not_found(_):
@@ -141,7 +141,7 @@ def delete():
         if chat.session == unique_id:
             db.session.delete(chat)
             db.session.commit()
-            return jsonify(1)
+            return jsonify (2) if Conversation.query.filter_by(session=unique_id).first() else jsonify(1)
         else:
             return jsonify('You do not have permission for this request')
     else:

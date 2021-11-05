@@ -1,8 +1,7 @@
 body{
   background-color: #131c21;
   font-family: "Segoe UI";
-  overflow:hidden;
-  overflow-x:hidden !important;
+  overflow:hidden ;
   padding:0px;
   margin:0px;
 }
@@ -47,15 +46,19 @@ body{
 .row {
   display: flex;
   height:100%;
+  width:100%;
 }
 .convos-col{
   flex: 30%;
   border-right: 0.5pt solid #394045;
+  transition: width 0.3s cubic-bezier(0, 0, 0.2, 1);
+  
 }
 .convo-col{
   background-image: url("images/dark-background.png");
   flex: 70%;
   box-shadow: inset 0 0 0 1000px rgba(9.3,13.74,16.7,0.94);
+  transition: width 0.3s cubic-bezier(0, 0, 0.2, 1);
 }
 .msg-div{
   width: 100%;
@@ -130,9 +133,9 @@ body{
   margin-top:5px;
   text-align:right;
 }
-.header{
+.header, .header-convo{
   background-color: #323739;
-  display:inline-block;
+  display:flex;;
   height:60px;
   position: -webkit-sticky;
   position: sticky;
@@ -141,22 +144,19 @@ body{
   align-items: center;
 }
 .reciever-img{
-  padding: 3px;
-  padding-left: 13px;
-  margin-right:10px;
-  margin-top:7px;
-  margin-bottom:-16px;
+  margin-left: 15px;
 }
 .reciever-name{
   color:#dedee0;
   font-weight:bolder;
+  margin-left:15px;
 }
 .dropdown{
   position: relative;
   display: inline-block;
   margin-top:8px;
   margin-right:8px;
-  float: right;
+  margin-left:auto;
   color:#dedee0;
   padding:7px;
   transition:0.4s;
@@ -210,6 +210,7 @@ body{
   border-bottom: 0.5pt solid #394045;
   text-align:center;
   margin-top:-6px;
+  overflow: auto;
 }
 .search-box{
   background-color: #323739;
@@ -291,6 +292,7 @@ body{
 }
 .add-card{
   height:60px;
+  margin-bottom:90px;
 }
 .add-btn{
   width:100%;
@@ -527,4 +529,62 @@ a:hover{
   100% {
     transform: rotate(360deg);
   }
+}
+.side-hide-btn{
+  opacity:0;
+  position:absolute;
+  background-color:transparent;
+  border:none;
+  margin-left:auto;
+  margin-right:20px;
+  transition:0.4s;
+  border-radius:5px;
+  background-color:#262d30c2;
+}
+.side-icon{
+  fill:white;
+  margin-top:4px;
+  margin-right:-9px;
+  margin-bottom:-5px;
+}
+.side-show-btn{
+  opacity:0;
+  position:absolute;
+  background-color:transparent;
+  border:none;
+  margin-left:10px;
+  margin-right:-10px;
+  transition:0.4s;
+  border-radius:5px;
+}
+.side-show-btn:hover, .side-hide-btn:hover{
+  cursor:pointer;
+  color:grey;
+}
+@media screen and (max-width: 480px) {
+  .row{
+    display:flex;
+  }
+  .convos-col{
+    flex:none;
+    width:0%;
+    height:0%;
+  }
+  .side-show-btn ,.side-hide-btn{
+    opacity:1;
+    position:relative;
+  }
+  .down-row{
+    width:95%;
+  }
+}
+.visible{
+  width:100%;
+  height:100%;
+}
+.hide-body{
+  width:0;
+}
+.hide-header{
+  display:none;
 }

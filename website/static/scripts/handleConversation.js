@@ -1,8 +1,15 @@
 function delete_conversation(id,unique_id){
 	$.getJSON('/delete_conversation?id='+id+'&u='+unique_id,
 	      function(data){
-	        if (data==1){
+	      	console.log(data)
+	        if (data==2){
+	        	console.log('here')
 	        	reloadAsGet();
+	        }
+	        else{
+	        	console.log('redirect')
+				redirect_url = window.location.origin+'/?error=Your+conversation+has+been+deleted&error_class=success';
+				window.location.replace(redirect_url);
 	        }
 	    }
 	);
