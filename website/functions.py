@@ -137,7 +137,7 @@ def parse(location,file,username):
                             show_time=show_time,break_space=break_space,type=msg_type)
                 db.session.add(msg)
                 
-    except UnboundLocalError:
+    except (UnboundLocalError,ValueError):
         os.remove(location)
         abort(422)
 
