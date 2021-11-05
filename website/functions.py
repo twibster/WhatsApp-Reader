@@ -105,7 +105,7 @@ def parse(location,file,username):
                 msgs.add(msg)
                 
         convo.msgs = msgs           
-    except UnboundLocalError:
+    except (UnboundLocalError,ValueError):
         os.remove(location)
         abort(422)
 
