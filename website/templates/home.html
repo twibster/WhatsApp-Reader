@@ -10,7 +10,7 @@
 		<div class='down-row' id='down'>
 			<form  method='POST' action="" enctype='multipart/form-data' onsubmit="return validate_form()">
 			{% if error %}
-				<div class='file-error'>
+				<div class='file-msg {{error_class}}'>
 					<p>{{error}}</p>
 				</div>
 			{% endif %}
