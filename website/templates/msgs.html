@@ -1,74 +1,157 @@
 {% if type =='group' %}
-{% for msg in msgs %}
-	{% if msg.show_time%}
-		<div class='msg-div center'>
-			<div class='date-msg'>{{datetime.strftime(msg.date,'%#m/%#d/%Y')}}</div>
-		</div>
-	{% endif %}
-	{% if not msg.sender %}
-		{% if 'encrypted' in msg.msg %}
-			<div class='msg-div center'><div class='encrypt-msg'>{{msg.msg}}</div></div>
-		{% else %}
-			<div class='msg-div center'><div class='date-msg'>{{msg.msg}}</div></div>
+	{% for msg in msgs %}
+		{% if msg.show_time%}
+			<div class='msg-div center'>
+				<div class='date-msg'>{{datetime.strftime(msg.date,'%#m/%#d/%Y')}}</div>
+			</div>
 		{% endif %}
-	{% else %}
-		{% if msg.break_space %}
-			<div class='msg-div space'>
-		{% else %}
-			<div class='msg-div'>
-		{% endif %}
-			{% if msg.type =='italic' %}
-				{% set italic ='italic' %}
-			{% endif %}
-			{% if msg.sender ==pov.name %}
-				<div class='sender {{italic}}'>
+		{% if not msg.sender %}
+			{% if 'encrypted' in msg.msg %}
+				<div class='msg-div center'><div class='encrypt-msg'>{{msg.msg}}</div></div>
 			{% else %}
-				<div class='reciever {{italic}}'>
+				<div class='msg-div center'><div class='date-msg'>{{msg.msg}}</div></div>
 			{% endif %}
+		{% else %}
 			{% set color=people.filter_by('name',msg.sender,'=')[0].color %}
-					<span class='msg-sender' style="color:{{color}};">{{msg.sender}}</span>
-					<span class='msg'>{{msg.msg|safe}}</span>
-					<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
-				</div>
-			</div>
-	{% endif %}
-{% endfor %}
-{% else %}
-{% for msg in msgs %}
-	{% if msg.show_time %}
-		<div class='msg-div center'>
-			<div class='date-msg'>{{datetime.strftime(msg.date,'%#m/%#d/%Y')}}</div>
-		</div>
-	{% endif %}
-	{% if not msg.sender %}
-		{% if 'encrypted' in msg.msg %}
-			<div class='msg-div center'>
-				<div class='encrypt-msg'>{{msg.msg}}</div>
-			</div>
-		{% else %}
-			<div class='msg-div center'>
-				<div class='date-msg'>{{msg.msg}}</div>
-			</div>
-		{% endif %}
-	{% else %}
-		{% if msg.break_space %}
-			<div class='msg-div space'>
-		{% else %}
-			<div class='msg-div'>
-		{% endif %}
+			{% if msg.break_space %}
+				{% set break = 'space' %}
+				{% set msg_sender = "<span class='msg-sender' style='color:{};'>{}</span>".format(color,msg.sender) %}
+			{% else %}
+				{% set msg_sender ='' %}
+			{% endif %}
 			{% if msg.type =='italic' %}
 				{% set italic ='italic' %}
 			{% endif %}
 			{% if msg.sender ==pov.name %}
-				<div class='sender {{italic}}'>
+				{% set who = 'sender' %}
 			{% else %}
-				<div class='reciever {{italic}}'>
+				{% set who = 'reciever' %}
 			{% endif %}
-					<span class='msg'>{{msg.msg|safe}}</span>
-					<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+				<div class='msg-div {{break}}'>		
+				{% if '(file attached)' in msg.msg%} 
+					{% set file,txt=msg.msg.split(' (file attached)') %}
+					{% set path =  "static/media/{}".format(file) %}
+					{% if 'jpg' in msg.msg or 'jpeg' in msg.msg or 'png' in msg.msg %}
+						<div class='{{who}} {{italic}} img-media-container'>
+							<span class='msg-sender media-msg-sender' style="color:{{color}};">{{msg.sender}}</span>
+							<img class='rounded-media' src="{{path}}" width="100%" height="auto" alt='attached file is not found'>
+							<span class='media-date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+						</div>
+					{% elif 'mp4' in msg.msg %}
+						<div class='{{who}} {{italic}} video-media-container'>
+							<span class='msg-sender media-msg-sender' style="color:{{color}};">{{msg.sender}}</span>
+							<video class='rounded-media' width="100%" height="auto" controls>
+								<source src="{{path}}" type='video/mp4'>
+								Videos are not supported by your browsers.
+							</video>
+							<span class='media-date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+<!-- 							<p>{{txt|safe}}</p> -->
+						</div>
+					{% elif 'mp3' in msg.msg or 'opus' in msg.msg %}
+						<div class='{{who}} {{italic}} audio-media-container'>
+							<span class='msg-sender media-msg-sender' style="color:{{color}};">{{msg.sender}}</span>
+							<audio controls class='rounded-media audio-player'>
+							  <source src="{{path}}" type="audio/ogg">
+								Your browser can not play audio messages.
+							</audio>
+							<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+						</div>
+					{% elif 'webp' in msg.msg %}
+						<div class="sticker-container">
+							<div class='msg-div'>
+								<div class="{{who}}">
+									<span class='msg-sender sticker-msg-sender' style="color:{{color}};">{{msg.sender}}</span>
+								</div>
+							</div>
+							<div class='{{who}} {{italic}} sticker-media-container'>
+								<img class='rounded-media' src="{{path}}" width="120" height="120" alt='attached file is not found'>		
+							</div>
+							<div class="msg-div">
+								<div class='{{who}}'>
+									<span class='date' style="margin-top:-1px; padding:1px;">{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+								</div>
+							</div>
+						</div>
+					{% endif %}
+				{% else %}
+					<div class='{{who}} {{italic}} no-media-container'>
+						{{msg_sender|safe}}
+						<span class='msg'>{{msg.msg|safe}}</span>
+						<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+					</div>
+				{% endif %}
 				</div>
+		{% endif %}
+	{% endfor %}
+{% else %}
+	{% for msg in msgs %}
+		{% if msg.show_time %}
+			<div class='msg-div center'>
+				<div class='date-msg'>{{datetime.strftime(msg.date,'%#m/%#d/%Y')}}</div>
 			</div>
-	{% endif %}
-{% endfor %}
+		{% endif %}
+		{% if not msg.sender %}
+			{% if 'encrypted' in msg.msg %}
+				<div class='msg-div center'><div class='encrypt-msg'>{{msg.msg}}</div></div>
+			{% else %}
+				<div class='msg-div center'><div class='date-msg'>{{msg.msg}}</div></div>
+			{% endif %}
+		{% else %}
+			{% if msg.break_space %}
+				{% set break = 'space' %}
+			{% endif %}
+			{% if msg.type =='italic' %}
+				{% set italic ='italic' %}
+			{% endif %}
+			{% if msg.sender ==pov.name %}
+				{% set who = 'sender' %}
+			{% else %}
+				{% set who = 'reciever' %}
+			{% endif %}
+				<div class='msg-div {{break}}'>			
+				{% if '(file attached)' in msg.msg%} 
+					{% set file,txt=msg.msg.split(' (file attached)') %}
+					{% set path =  "static/media/{}".format(file) %}
+					{% if 'jpg' in msg.msg or 'jpeg' in msg.msg or 'png' in msg.msg %}
+						<div class='{{who}} {{italic}} img-media-container'>
+							<img class='rounded-media' src="{{path}}" width="100%" height="auto" alt='attached file is not found'>
+							<span class='media-date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+						</div>
+					{% elif 'mp4' in msg.msg %}
+						<div class='{{who}} {{italic}} video-media-container'>
+							<video class='rounded-media' width="100%" height="auto" controls>
+								<source src="{{path}}" type='video/mp4'>
+								Videos are not supported by your browsers.
+							</video>
+							<span class='media-date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+<!-- 							<p>{{txt|safe}}</p> -->
+						</div>
+					{% elif 'mp3' in msg.msg or 'opus' in msg.msg %}
+						<div class='{{who}} {{italic}} audio-media-container'>
+							<audio controls class='rounded-media audio-player'>
+							  <source src="{{path}}" type="audio/ogg">
+								Your browser can not play audio messages.
+							</audio>
+							<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+						</div>
+					{% elif 'webp' in msg.msg %}
+						<div class='{{who}} {{italic}} sticker-media-container'>
+							<img class='rounded-media' src="{{path}}" width="120" height="120" alt='attached file is not found'>		
+						</div>
+						<div class="msg-div">
+							<div class='{{who}}'>
+								<span class='date' style="margin-top:-1px; padding:1px;">{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+							</div>
+						</div>
+					{% endif %}
+				{% else %}
+					<div class='{{who}} {{italic}} no-media-container'>
+						<span class='msg'>{{msg.msg|safe}}</span>
+						<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+					</div>
+				{% endif %}
+				</div>
+		{% endif %}
+	{% endfor %}
 {% endif %}
 <div id='animation-container'><div class="lds-dual-ring"></div></div>

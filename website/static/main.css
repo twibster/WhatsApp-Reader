@@ -34,6 +34,7 @@ body{
   padding-right:20px;
   cursor:pointer;
   transition:0.4s;
+  margin-bottom: 20px;
 }
 .submit:hover{
   background-color:#00c3ae;
@@ -79,15 +80,12 @@ body{
   padding:8px;
   border-radius:6px;
   font-size:small;
-  margin-bottom:9px;
   margin-top:9px;
 }
 .sender{
   float:right;
   margin-right:7px;
   background-color: #056162; 
-  padding: 8px;
-  padding-bottom:3; 
   border-radius:6px; 
   color: #dedee0;
   min-width:50px;
@@ -97,16 +95,41 @@ body{
   margin-left:7px;
   float:left;
   background-color: #262d31; 
-  padding: 8px;
-  padding-bottom:3; 
   border-radius:6px; 
   color:#dedee0;
   min-width:50px;
   max-width:70%;
 }
+.img-media-container{
+  padding:3px;
+}
+.video-media-container{
+  padding:3px;
+}
+.video-media-container video{
+  z-index:0;
+}
+.audio-media-container{
+  padding:3px;
+  padding-top:5px;
+}
+.no-media-container{
+  padding:8px;
+}
+.sticker-media-container{
+  background-color:transparent;
+  margin-bottom:2px;
+}
 .msg{
   display: block;
-  
+}
+.rounded-media{
+  border-radius: 5px;
+  max-height:1000px;
+}
+.audio-player{
+  max-width:100%;
+  height:40px;
 }
 .right-align{
   text-align:right;
@@ -116,6 +139,24 @@ body{
   display: block;
   text-align:left;
   font-weight:500;
+}
+.media-msg-sender{
+  margin-left:4px;
+  margin-bottom:4px;
+}
+.sticker-msg-sender{
+  text-align:center;
+}
+.media-date{
+  position:relative;
+  color: #ffffff;
+  font-size:11;
+  text-shadow: black 0px 0px 10px;
+  display:block;
+  margin-top:-16px;
+  margin-right:6px;
+  text-align:right;
+  z-index:1; 
 }
 .date{
   color: #b1b5aa;
@@ -523,4 +564,44 @@ a:hover{
   100% {
     transform: rotate(360deg);
   }
+}
+}
+@media screen and (max-width: 480px) {
+  .down-row{
+    width:95%;
+  }
+}
+.visible{
+  width:100% !important;
+  height:100% !important;
+  opacity:1 !important;
+}
+.tabs-container{
+  width: 100%;
+  display:flex;
+  justify-content:center;
+}
+.tabs-container button{
+  flex:100%;
+  height:50px;
+  transition:0.4s;
+  background-color: transparent;
+  cursor:pointer;
+  border-radius:5px;
+  border: 0.01em solid grey;
+  color:#00af9c;
+}
+.tabs-container button:hover{
+  background-color:#434748 !important;
+}
+.show-media , .show-no-media{
+  width:0;
+  height:0;
+  opacity:0;
+}
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: #323739; 
 }

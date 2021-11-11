@@ -2,20 +2,40 @@ import os,secrets,re,random,datetime
 from website.models import Conversation,Message,Chatters,conversations,people,msgs
 from website import app
 from flask import abort,redirect,url_for
+from zipfile import ZipFile
+
+def parse_zip(file):
+    with ZipFile(file, 'r') as zip:
+        chat_file=None
+        files=zip.namelist()
+
+        for file in files:
+            if 'WhatsApp Chat with' and '.txt' in file:
+                chat_file = file
+
+        if not chat_file:
+            abort(422)
+
+        zip.extractall(path =os.path.join(app.root_path,'static','media'))
+    return chat_file
 
 def save_file(form_file,username):
     if form_file:
-        file_text, file_ext = os.path.splitext(form_file.filename) # extract the name and extension of the original file
         random_hex = secrets.token_hex(8) # generate random name for the file
-        file_filename = random_hex + file_ext # create the random name for the file
-        file_path = os.path.join(app.root_path,'chats',file_filename) # create the path to save the file
-        try:
-            os.makedirs(os.path.join(app.root_path,'chats'))
-        except FileExistsError:
-            pass
-        form_file.save(file_path) #save the file to the created path
-        id = parse(file_path,form_file.filename,username) #read and process the saved file
-        os.remove(file_path)
+        file_text, file_ext = os.path.splitext(form_file.filename) # extract the name and extension of the original file
+        if file_ext =='.zip':
+            chat_file = parse_zip(form_file)
+            id = parse(os.path.join(app.root_path,'static','media',chat_file),chat_file,username)
+        else:
+            file_filename = random_hex + file_ext # create the random name for the file
+            file_path = os.path.join(app.root_path,'chats',file_filename) # create the path to save the file
+            try:
+                os.makedirs(os.path.join(app.root_path,'chats'))
+            except FileExistsError:
+                pass
+            form_file.save(file_path) #save the file to the created path
+            id = parse(file_path,form_file.filename,username) #read and process the saved file
+            os.remove(file_path)
         return id
     else:
         return None

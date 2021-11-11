@@ -1,14 +1,14 @@
 {% extends 'layout.html' %}
 {% block content %}
 	<div class='outer-home'>
-		<div class='up-row'>
-			<div class='logo-container'>
-				<img src='static/images/whatsapp.png' class='logo-img'>
-				<p class='logo-txt'>WHATSAPP READER</p>
+		<form  method='POST' action="" enctype='multipart/form-data' onsubmit="return validate_form()">
+			<div class='up-row'>
+				<div class='logo-container'>
+					<img src='static/images/whatsapp.png' class='logo-img'>
+					<p class='logo-txt'>WHATSAPP READER</p>
+				</div>
 			</div>
-		</div>
-		<div class='down-row' id='down'>
-			<form  method='POST' action="" enctype='multipart/form-data' onsubmit="return validate_form()">
+			<div class='down-row' id='down'>
 			{% if error %}
 				<div class='file-msg {{error_class}}'>
 					<p>{{error}}</p>
@@ -23,8 +23,21 @@
 						<p class='info-text'>4. Tap <b>Menu </b><svg class='menu-img' viewBox="0 0 24 24" width="24" height="24"><path fill="currentColor" d="M12 7a2 2 0 1 0-.001-4.001A2 2 0 0 0 12 7zm0 2a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 9zm0 6a2 2 0 1 0-.001 3.999A2 2 0 0 0 12 15z"></path></svg>
 						and select <b>More</b>.</p><br>
 						<p class='info-text'>5. Select <b>Export Chat</b>.</p><br>
-						<p class='info-text'>6. DO NOT <b>MODIFY</b> THE FILE.</p><br>
-						<p class='info-text'>7. Upload your conversation here.</p><br>
+						<div class='tabs-container'>
+							<button id='media-btn'type='button' onclick="show_media()">WITH MEDIA</button>
+							<button id='no-media-btn'type='button' onclick="show_no_media()">WITHOUT MEDIA</button>
+						</div>
+						<div class='show-media'>
+							<p class='info-text'>6. DO NOT <b>MODIFY</b> THE FILE.</p><br>
+							<p class='info-text'>7. Zip your files using any file compression software.</p><br>
+							<p class='info-text'>7. Upload your <code>.zip</code> conversation here.</p><br>
+							<p class='info-text'>8. <b>Delete</b> your conversation after you finish reading it.</p><br>
+						</div>
+						<div class='show-no-media'>
+							<p class='info-text'>6. DO NOT <b>MODIFY</b> THE FILE.</p><br>
+							<p class='info-text'>7. Upload your <code>.txt</code> conversation here.</p><br>
+							<p class='info-text'>8. <b>Delete</b> your conversation after you finish reading it.</p><br>
+						</div>
 					</div>
 				</div>
 				<div class='file'>
@@ -34,9 +47,12 @@
 				<div class='file-submit'>
 					<input type="submit" name="Submit" value='SUBMIT' class='submit' id='submit-btn'>
 				</div>
-			</form>
-		</div>
-		<script type="text/javascript" src="static/scripts/homeMobile.js"></script>
+			</div>
+		</form>
 	</div>
+	<script type="text/javascript">
+		document.body.style.overflow='auto';
+	</script>
 	<script type="text/javascript" src="static/scripts/Validator.js"></script>
+	<script type="text/javascript" src="static/scripts/homeStyles.js"></script>
 {% endblock%}
