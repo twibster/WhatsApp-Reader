@@ -21,7 +21,7 @@ def unautherized(_):
 @app.errorhandler(406)
 def not_found(_):
     return redirect(url_for('home',error=errors[3],error_class='error'))
-    
+
 @app.route("/",methods =['GET','POST'])
 def home():
     error=request.args.get('error')
@@ -69,7 +69,7 @@ def chats():
     
     fetch_time=time.time()-start
     return render_template('conversation.html',pov=pov,reciever=reciever,convos=convos,
-                            datetime=datetime.datetime,len=len,id=id,chatters=chatters,
+                            datetime=datetime.datetime,len=len,id=id,chatters=chatters,any=any,
                             unique_id=unique_id,time=time,fetch_time=fetch_time,parse_time=parse_time)
 
 @app.route('/fetch_conversation')

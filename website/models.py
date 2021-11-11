@@ -4,6 +4,7 @@ class Conversation(db.Model):
 	id=db.Column(db.Integer,primary_key= True)
 	type=db.Column(db.String,default='private')
 	title=db.Column(db.String)
+	media=db.Column(db.Boolean,default=False)
 	pov=db.Column(db.String)
 	msgs=db.relationship('Message',backref = "conversation", cascade="all, delete")
 	session=db.Column(db.String)

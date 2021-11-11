@@ -52,7 +52,6 @@ body{
   flex: 30%;
   border-right: 0.5pt solid #394045;
   transition: width 0.3s cubic-bezier(0, 0, 0.2, 1);
-  
 }
 .convo-col{
   background-image: url("images/dark-background.png");
@@ -88,15 +87,12 @@ body{
   padding:8px;
   border-radius:6px;
   font-size:small;
-  margin-bottom:9px;
   margin-top:9px;
 }
 .sender{
   float:right;
   margin-right:7px;
   background-color: #056162; 
-  padding: 8px;
-  padding-bottom:3; 
   border-radius:6px; 
   color: #dedee0;
   min-width:50px;
@@ -106,16 +102,40 @@ body{
   margin-left:7px;
   float:left;
   background-color: #262d31; 
-  padding: 8px;
-  padding-bottom:3; 
   border-radius:6px; 
   color:#dedee0;
   min-width:50px;
   max-width:70%;
 }
+.img-media-container{
+  padding:3px;
+}
+.video-media-container{
+  padding:3px;
+}
+.video-media-container video{
+  z-index:0;
+}
+.audio-media-container{
+  padding:3px;
+  padding-top:5px;
+}
+.no-media-container{
+  padding:8px;
+}
+.sticker-media-container{
+  background-color:transparent;
+  margin-bottom:2px;
+}
 .msg{
   display: block;
-  
+}
+.rounded-media{
+  border-radius: 5px;
+}
+.audio-player{
+  max-width:100%;
+  height:40px;
 }
 .right-align{
   text-align:right;
@@ -125,6 +145,24 @@ body{
   display: block;
   text-align:left;
   font-weight:500;
+}
+.media-msg-sender{
+  margin-left:4px;
+  margin-bottom:4px;
+}
+.sticker-msg-sender{
+  text-align:center;
+}
+.media-date{
+  position:relative;
+  color: #ffffff;
+  font-size:11;
+  text-shadow: black 0px 0px 10px;
+  display:block;
+  margin-top:-16px;
+  margin-right:6px;
+  text-align:right;
+  z-index:1; 
 }
 .date{
   color: #b1b5aa;

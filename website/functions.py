@@ -2,30 +2,49 @@ import os,secrets,re,random,datetime,time
 from website.models import Conversation,Message,Chatters
 from website import app,db
 from flask import abort,redirect,url_for,request
+from zipfile import ZipFile
 
 def pre_parse(unique_id=None):
     if not unique_id:
         unique_id=os.urandom(8).hex()
-
     start=time.time()
     id = save_file(request.files['txt_file'],unique_id)
     end=time.time()
 
     return end-start,id,unique_id
-    
+
+def parse_zip(file):
+    with ZipFile(file, 'r') as zip:
+        chat_file=None
+        files=zip.namelist()
+
+        for file in files:
+            if 'WhatsApp Chat with' and '.txt' in file:
+                chat_file = file
+
+        if not chat_file:
+            abort(422)
+
+        zip.extractall(path =os.path.join(app.root_path,'static','media'))
+    return chat_file
+
 def save_file(form_file,username):
     if form_file:
         random_hex = secrets.token_hex(8) # generate random name for the file
         file_text, file_ext = os.path.splitext(form_file.filename) # extract the name and extension of the original file
-        file_filename = random_hex + file_ext # create the random name for the file
-        file_path = os.path.join(app.root_path,'chats',file_filename) # create the path to save the file
-        try:
-            os.makedirs(os.path.join(app.root_path,'chats'))
-        except FileExistsError:
-            pass
-        form_file.save(file_path) #save the file to the created path
-        id = parse(file_path,form_file.filename,username) #read and process the saved file
-        os.remove(file_path)
+        if file_ext =='.zip':
+            chat_file = parse_zip(form_file)
+            id = parse(os.path.join(app.root_path,'static','media',chat_file),chat_file,username,media=True)
+        else:
+            file_filename = random_hex + file_ext # create the random name for the file
+            file_path = os.path.join(app.root_path,'chats',file_filename) # create the path to save the file
+            try:
+                os.makedirs(os.path.join(app.root_path,'chats'))
+            except FileExistsError:
+                pass
+            form_file.save(file_path) #save the file to the created path
+            id = parse(file_path,form_file.filename,username) #read and process the saved file
+            os.remove(file_path)
         return id
     else:
         return None
@@ -89,7 +108,7 @@ def date_format(date):
             continue
         return pattern
 
-def parse(location,file,username):
+def parse(location,file,username,media=False):
     chat_title= extract_chat_title(file)
     try:
         with open(location, encoding='utf-8-sig') as chat: 
@@ -122,7 +141,7 @@ def parse(location,file,username):
                     show_time=True
                     date_time_format =date_format(date)+' '+time_format(time)
                     '''initialize the conversation in the database'''
-                    convo=Conversation(session=username)
+                    convo=Conversation(session=username,media=media)
                     db.session.add(convo)
 
                 date = datetime.datetime.strptime(date+' '+time, date_time_format)
@@ -137,7 +156,7 @@ def parse(location,file,username):
                             show_time=show_time,break_space=break_space,type=msg_type)
                 db.session.add(msg)
                 
-    except (UnboundLocalError,ValueError):
+    except (UnboundLocalError,ValueError,TypeError):
         os.remove(location)
         abort(422)
 
