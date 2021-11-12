@@ -14,6 +14,7 @@ body{
   box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2),0 6px 20px 0 rgba(0,0,0,0.19);
 }
 #txt-file{
+  display:none;
   opacity:0;
   height:100%;
   width:100%;
@@ -21,8 +22,9 @@ body{
 }
 .txt-label{
   color:#00af9c;
-  display:inline-block;
-  margin-top:-36px
+  display: table-cell;
+  text-align: center;
+  vertical-align:middle;
 }
 .submit{
   border-radius:3px;
