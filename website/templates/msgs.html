@@ -74,9 +74,9 @@
 						</div>
 					{% endif %}
 				{% else %}
-					<div class='{{who}} {{italic}} no-media-container'>
+					<div class='{{who}} no-media-container'>
 						{{msg_sender|safe}}
-						<span class='msg'>{{msg.msg|safe}}</span>
+						<span class='msg {{italic}}'>{{msg.msg|safe}}</span>
 						<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
 					</div>
 				{% endif %}
@@ -145,8 +145,8 @@
 						</div>
 					{% endif %}
 				{% else %}
-					<div class='{{who}} {{italic}} no-media-container'>
-						<span class='msg'>{{msg.msg|safe}}</span>
+					<div class='{{who}} no-media-container'>
+						<span class='msg {{italic}}'>{{msg.msg|safe}}</span>
 						<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
 					</div>
 				{% endif %}

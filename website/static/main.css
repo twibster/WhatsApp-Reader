@@ -85,6 +85,7 @@ body{
   color: #dedee0;
   display: inline-block;
   padding:8px;
+  margin-bottom: 3px;
   border-radius:6px;
   font-size:small;
   margin-top:9px;
@@ -158,10 +159,10 @@ body{
   color: #ffffff;
   font-size:11;
   text-shadow: black 0px 0px 10px;
-  display:block;
-  margin-top:-16px;
+  float:right;
+  bottom:17px;
+  margin-bottom:-14px;
   margin-right:6px;
-  text-align:right;
   z-index:1; 
 }
 .date{
