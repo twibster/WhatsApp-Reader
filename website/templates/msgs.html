@@ -28,7 +28,7 @@
 				{% set who = 'reciever' %}
 			{% endif %}
 				<div class='msg-div {{break}}'>		
-				{% if '(file attached)' in msg.msg%} 
+				{% if '(file attached)' in msg.msg and msg.conversation.media%} 
 					{% set file,txt=msg.msg.split(' (file attached)') %}
 					{% set path =  "static/media/{}".format(file) %}
 					{% if 'jpg' in msg.msg or 'jpeg' in msg.msg or 'png' in msg.msg %}
@@ -72,6 +72,12 @@
 								</div>
 							</div>
 						</div>
+					{% else %}
+						<div class='{{who}} no-media-container'>
+							{{msg_sender|safe}}
+							<span class='msg {{italic}}'>{{msg.msg|safe}}</span>
+							<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
+						</div>
 					{% endif %}
 				{% else %}
 					<div class='{{who}} no-media-container'>
@@ -109,7 +115,7 @@
 				{% set who = 'reciever' %}
 			{% endif %}
 				<div class='msg-div {{break}}'>			
-				{% if '(file attached)' in msg.msg%} 
+				{% if '(file attached)' in msg.msg and msg.conversation.media%} 
 					{% set file,txt=msg.msg.split(' (file attached)') %}
 					{% set path =  "static/media/{}".format(file) %}
 					{% if 'jpg' in msg.msg or 'jpeg' in msg.msg or 'png' in msg.msg %}
@@ -142,6 +148,11 @@
 							<div class='{{who}}'>
 								<span class='date' style="margin-top:-1px; padding:1px;">{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
 							</div>
+						</div>
+					{% else %}
+						<div class='{{who}} no-media-container'>
+							<span class='msg {{italic}}'>{{msg.msg|safe}}</span>
+							<span class='date'>{{datetime.strftime(msg.date,'%I:%M %p')}}</span>
 						</div>
 					{% endif %}
 				{% else %}

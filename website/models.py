@@ -1,9 +1,10 @@
 class Conversation():
-    def __init__(self,title=None,type="private",session=None,msgs=None,id=0):
+    def __init__(self,title=None,type="private",session=None,media=None,msgs=None,id=0):
         self.next = None
         self.title=title
         self.type=type
         self.session=session
+        self.media=media
         self.msgs=msgs
         self.id=id
         

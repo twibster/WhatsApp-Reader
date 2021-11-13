@@ -21,9 +21,10 @@ def unautherized(_):
 @app.errorhandler(406)
 def not_found(_):
     return redirect(url_for('home',error=errors[3],error_class='error'))
-    
+
 @app.route("/",methods =['GET','POST'])
 def home():
+    conversations.clear(),people.clear(),msgs.clear()
     error=request.args.get('error')
     error_class=request.args.get('error_class')
 
